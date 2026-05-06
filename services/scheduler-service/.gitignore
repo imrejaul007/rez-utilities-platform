@@ -1,0 +1,106 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Build output
+dist/
+build/
+.next/
+out/
+.turbo/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cache/
+.turbo/
+*.pem
+.env*.example.local
+
+# Sensitive files
+firebase.json
+google-services.json
+credentials.json
+secrets.json
+
+# Database
+*.sqlite
+*.sqlite3
+db.json
+
+# Redis
+dump.rdb
+
+# Temporary
+tmp/
+temp/
+.tmp/
+
+# Kubernetes
+kubeconfig.yaml
+
+# Local overrides
+.env.local.override
+
+# Submodules and external repos
+Hotel OTA/
+Resturistan App/
+analytics-events/
+packages/rez-shared/
+rez-ads-service/
+rez-api-gateway/
+rez-auth-service/
+rez-catalog-service/
+rez-gamification-service/
+rez-marketing-service/
+rez-media-events/
+rez-merchant-service/
+rez-notification-events/
+rez-order-service/
+rez-payment-service/
+rez-search-service/
+rez-shared/
+rez-wallet-service/
+rez-web-menu/
+rezadmin/
+rezapp/
+rezbackend/
+rezmerchant/
+
+# Zips
+*.zip

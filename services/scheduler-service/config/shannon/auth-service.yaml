@@ -1,0 +1,39 @@
+description: "REZ Auth Service — OTP-based consumer auth, JWT issuance, token refresh/revocation. Key risks: OTP prediction/bypass, JWT algorithm confusion (none/HS256), refresh token abuse, rate limit bypass on OTP endpoints, brute force on merchant email/password login."
+
+authentication:
+  login_type: form
+  login_url: "STAGING_URL/merchant/login"
+  credentials:
+    username: "test-merchant@rez.money"
+    password: "SHANNON_TEST_PASSWORD"
+
+  login_flow:
+    - "Send POST request to $login_url with JSON body containing email=$username and password=$password"
+    - "Store the returned accessToken as Bearer token"
+
+  success_condition:
+    type: url_contains
+    value: "/"
+
+rules:
+  avoid:
+    - description: "Do not send real OTPs to actual phone numbers"
+      type: path
+      url_path: "/otp/send"
+    - description: "Do not lock out real user accounts"
+      type: path
+      url_path: "/account/lock"
+
+  focus:
+    - description: "Test OTP verification bypass"
+      type: path
+      url_path: "/otp/verify"
+    - description: "Test JWT refresh token abuse and rotation"
+      type: path
+      url_path: "/token/refresh"
+    - description: "Test JWT algorithm confusion attacks"
+      type: path
+      url_path: "/verify"
+
+pipeline:
+  max_concurrent_pipelines: 2

@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ReZ Error Knowledge Base Entry",
+  "description": "Schema for documenting build, deployment, and runtime errors",
+  "type": "object",
+  "required": [
+    "error_id",
+    "type",
+    "title",
+    "service",
+    "root_cause",
+    "fix",
+    "prevention",
+    "commit_id",
+    "date",
+    "status"
+  ],
+  "properties": {
+    "error_id": {
+      "type": "string",
+      "description": "Unique identifier: ERR-{TYPE}-{SEQUENCE}",
+      "examples": ["ERR-BUILD-001", "ERR-DEPLOY-003", "ERR-RUNTIME-017"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["build", "deploy", "runtime", "ci", "security"],
+      "description": "Error category"
+    },
+    "subtype": {
+      "type": "string",
+      "description": "Specific error subtype",
+      "examples": [
+        "missing-dependency",
+        "syntax-error",
+        "type-error",
+        "env-missing",
+        "env-invalid",
+        "timeout",
+        "auth-failure",
+        "db-connection",
+        "n-plus-one",
+        "null-pointer",
+        "race-condition",
+        "injection",
+        "audit-failure"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "description": "Short human-readable title",
+      "maxLength": 80
+    },
+    "service": {
+      "type": "string",
+      "description": "Affected service or 'multiple'",
+      "examples": ["rez-wallet-service", "rez-api-gateway", "multiple"]
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["production", "staging", "ci", "local"],
+      "description": "Where the error occurred"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "description": "Impact severity"
+    },
+    "root_cause": {
+      "type": "string",
+      "description": "Detailed explanation of WHY this happened"
+    },
+    "fix": {
+      "type": "string",
+      "description": "What was done to resolve the error"
+    },
+    "prevention": {
+      "type": "object",
+      "description": "How this error is prevented going forward",
+      "properties": {
+        "ci_rule_added": {
+          "type": "string",
+          "description": "CI check or script added"
+        },
+        "test_added": {
+          "type": "string",
+          "description": "Test case added"
+        },
+        "validation_added": {
+          "type": "string",
+          "description": "Validation or type guard added"
+        },
+        "architectural_constraint": {
+          "type": "string",
+          "description": "Arch fitness rule added"
+        },
+        "runbook_entry": {
+          "type": "string",
+          "description": "Runbook documentation added"
+        },
+        "other": {
+          "type": "string",
+          "description": "Other prevention action"
+        }
+      }
+    },
+    "commit_id": {
+      "type": "string",
+      "description": "Git commit SHA that fixed this"
+    },
+    "pr_number": {
+      "type": "integer",
+      "description": "GitHub PR number that fixed this"
+    },
+    "issue_number": {
+      "type": "integer",
+      "description": "GitHub issue number for tracking"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the error was fixed (YYYY-MM-DD)"
+    },
+    "recurrence_count": {
+      "type": "integer",
+      "default": 1,
+      "description": "How many times this pattern has appeared"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Searchable tags for categorization"
+    },
+    "logs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Representative error log lines"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "resolved", "monitoring"],
+      "description": "Current state"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+description: "REZ Merchant Service — merchant onboarding, profile, dashboard, analytics. Key risks: IDOR on merchant records, privilege escalation from merchant to admin, mass assignment on merchant profile, unauthorized access to other merchants analytics and revenue data."
+
+authentication:
+  login_type: form
+  login_url: "STAGING_URL/auth/login"
+  credentials:
+    username: "test-merchant@rez.money"
+    password: "SHANNON_TEST_PASSWORD"
+
+  login_flow:
+    - "Send POST request to $login_url with JSON body containing email=$username and password=$password"
+    - "Store the returned JWT token as Bearer"
+
+  success_condition:
+    type: url_contains
+    value: "/"
+
+rules:
+  focus:
+    - description: "Test IDOR — access other merchants revenue and analytics"
+      type: path
+      url_path: "/analytics"
+    - description: "Test privilege escalation from merchant to admin role"
+      type: path
+      url_path: "/admin"
+    - description: "Test mass assignment on merchant profile fields"
+      type: path
+      url_path: "/profile"
+    - description: "Test unauthorized merchant onboarding approval"
+      type: path
+      url_path: "/onboarding"
+
+pipeline:
+  max_concurrent_pipelines: 2

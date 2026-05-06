@@ -1,0 +1,39 @@
+description: "REZ Wallet Service — coin/cashback wallet, credit/debit operations, coin expiry. Key risks: coin inflation (negative amounts, integer overflow), IDOR on wallet records, race conditions on concurrent debits, coin expiry bypass, unauthorized wallet access between users."
+
+authentication:
+  login_type: form
+  login_url: "STAGING_URL/auth/login"
+  credentials:
+    username: "test-merchant@rez.money"
+    password: "SHANNON_TEST_PASSWORD"
+
+  login_flow:
+    - "Send POST request to $login_url with JSON body containing email=$username and password=$password"
+    - "Store the returned JWT token as Bearer"
+
+  success_condition:
+    type: url_contains
+    value: "/"
+
+rules:
+  avoid:
+    - description: "Do not drain real user wallet balances"
+      type: path
+      url_path: "/debit"
+
+  focus:
+    - description: "Test negative amount coin credit (coin inflation)"
+      type: path
+      url_path: "/credit"
+    - description: "Test IDOR — access other users wallet balances"
+      type: path
+      url_path: "/balance"
+    - description: "Test race conditions on concurrent debit operations"
+      type: path
+      url_path: "/transfer"
+    - description: "Test coin expiry bypass"
+      type: path
+      url_path: "/expiry"
+
+pipeline:
+  max_concurrent_pipelines: 2

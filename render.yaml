@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: rez-utilities-platform
+    env: node
+    region: singapore
+    buildCommand: npm install
+    startCommand: bash start.sh
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false

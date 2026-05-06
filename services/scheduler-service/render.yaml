@@ -1,0 +1,25 @@
+# render.yaml for REZ Scheduler Service
+# Deploy at: https://dashboard.render.com
+
+services:
+  - type: web
+    name: rez-scheduler-service
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3012
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: INTERNAL_SERVICE_TOKEN
+        sync: false
+      - key: JWT_SECRET
+        sync: false

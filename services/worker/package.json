@@ -1,0 +1,26 @@
+{
+  "name": "rez-worker",
+  "version": "1.0.0",
+  "description": "REZ Worker Service - Background job processing",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm install && npm install --include=dev && npx tsc",
+    "start": "node dist/index.js",
+    "dev": "npx ts-node src/index.ts"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "bullmq": "^5.30.0",
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.6.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3",
+    "ts-node": "^10.9.2"
+  }
+}

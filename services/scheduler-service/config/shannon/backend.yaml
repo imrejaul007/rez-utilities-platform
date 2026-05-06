@@ -1,0 +1,48 @@
+description: "REZ Backend monolith (Express/TypeScript). MongoDB + Redis. OTP-based consumer auth, JWT merchant/admin auth. Key attack surfaces: /api/auth (OTP bypass), /api/wallet (coin manipulation), /api/cashback, /api/orders, /api/qr-checkin, /api/admin (privilege escalation). Uses X-Internal-Token for service-to-service."
+
+authentication:
+  login_type: form
+  login_url: "STAGING_URL/api/merchant/auth/login"
+  credentials:
+    username: "test-merchant@rez.money"
+    password: "SHANNON_TEST_PASSWORD"
+
+  login_flow:
+    - "Send POST request to $login_url with JSON body containing email=$username and password=$password"
+    - "Store the returned JWT token for subsequent requests"
+
+  success_condition:
+    type: url_contains
+    value: "/api"
+
+rules:
+  avoid:
+    - description: "Do not trigger real Razorpay payment webhooks"
+      type: path
+      url_path: "/api/payment/webhook"
+    - description: "Do not send real OTPs to phone numbers"
+      type: path
+      url_path: "/api/auth/otp/send"
+    - description: "Do not trigger real notification events"
+      type: path
+      url_path: "/api/notifications"
+
+  focus:
+    - description: "Focus on authentication and authorization flaws"
+      type: path
+      url_path: "/api/auth"
+    - description: "Focus on wallet and coin manipulation endpoints"
+      type: path
+      url_path: "/api/wallet"
+    - description: "Focus on order manipulation"
+      type: path
+      url_path: "/api/orders"
+    - description: "Focus on admin privilege escalation"
+      type: path
+      url_path: "/api/admin"
+    - description: "Focus on cashback bypass"
+      type: path
+      url_path: "/api/cashback"
+
+pipeline:
+  max_concurrent_pipelines: 2

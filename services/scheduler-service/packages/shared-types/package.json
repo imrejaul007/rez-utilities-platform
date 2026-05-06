@@ -1,0 +1,26 @@
+{
+  "name": "@rez/shared-types",
+  "version": "1.0.0",
+  "description": "Canonical TypeScript interfaces for all RuFlo core entities",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "types",
+    "interfaces",
+    "entities"
+  ],
+  "dependencies": {
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

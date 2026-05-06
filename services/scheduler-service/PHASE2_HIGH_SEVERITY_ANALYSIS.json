@@ -1,0 +1,183 @@
+{
+  "analysis_date": "2026-04-15",
+  "phase": "2",
+  "scope": "HIGH severity bugs in money-critical backend services",
+  "total_high_bugs_identified": 42,
+  "services_affected": [
+    "rez-payment-service",
+    "rez-order-service",
+    "rez-wallet-service",
+    "rez-finance-service",
+    "rez-api-gateway",
+    "rez-auth-service",
+    "rez-merchant-service",
+    "rez-catalog-service"
+  ],
+  "critical_findings": {
+    "BE-MER-002": {
+      "severity": "CRITICAL",
+      "service": "rez-merchant-service",
+      "category": "Authorization",
+      "issue": "Missing Merchant ID Validation in Profile Update",
+      "description": "Merchants can bypass verification by sending { isVerified: true } in request body. No whitelist of editable fields.",
+      "impact": "Merchants can self-verify accounts, bypass KYC, escalate privileges",
+      "compliance_violation": "YES - KYC requirements bypassed",
+      "fix_required": "Implement explicit whitelist of editable fields in src/routes/merchants.ts PUT /profile"
+    },
+    "BE-MER-003": {
+      "severity": "CRITICAL",
+      "service": "rez-merchant-service",
+      "category": "Data Protection",
+      "issue": "Bank Details Stored Unencrypted",
+      "description": "Bank account information stored in plaintext if encryption hooks don't match field path",
+      "impact": "PII leak - bank details readable in MongoDB, regulatory violation (RBI, GDPR)",
+      "compliance_violation": "YES - GDPR, RBI",
+      "fix_required": "Remove bankDetails from MERCHANT_PROFILE_EDITABLE_FIELDS or ensure path matches encryption hook"
+    },
+    "BE-PAY-002": {
+      "severity": "CRITICAL",
+      "service": "rez-payment-service",
+      "category": "Replay Attacks",
+      "issue": "Replay attack on webhook events when Redis unavailable",
+      "description": "Webhook deduplication uses Redis. When unavailable, falls back to process-scoped in-memory cache. In multi-instance production, replay guard bypassed entirely.",
+      "impact": "Duplicate coin credits or double charges if webhook replayed to fresh instance",
+      "scenario": "payment.captured webhook replayed -> two instances both mark payment completed -> wallet credited twice",
+      "fix_required": "Reject webhook with 503 when Redis unavailable, or use distributed cache with lock"
+    },
+    "BE-PAY-009": {
+      "severity": "HIGH",
+      "service": "rez-payment-service",
+      "category": "Settlement",
+      "issue": "Webhook handler doesn't verify payment actually paid by Razorpay",
+      "description": "handleWebhookCaptured marks payment completed based on webhook event without verifying razorpayPaymentId matches Payment record",
+      "impact": "Fake webhook with valid signature could credit wallet without actual payment",
+      "fix_required": "Fetch payment details from Razorpay API to verify status=captured and amount matches"
+    },
+    "BE-PAY-025": {
+      "severity": "HIGH",
+      "service": "rez-payment-service",
+      "category": "Double-Spend Prevention",
+      "issue": "Concurrent webhook and capture API could credit wallet twice",
+      "description": "walletCredited flag updated after transaction completes. Both webhook and capture API could enqueue wallet credit job simultaneously.",
+      "impact": "Wallet balance corruption - coins credited twice for single payment",
+      "fix_required": "Set walletCredited=true inside transaction before enqueueing wallet credit job"
+    },
+    "BE-AUTH-005": {
+      "severity": "HIGH",
+      "service": "rez-auth-service",
+      "category": "OTP Verification",
+      "issue": "Concurrent OTP Verification Creates Duplicates",
+      "description": "Two concurrent calls to verifyOTP on same phone with same OTP both pass check. Second caller increments failure counter twice.",
+      "impact": "User locked out prematurely due to inflated failure counter on accidental double-click",
+      "fix_required": "Increment failure counter atomically ONLY after comparison fails in Lua script"
+    },
+    "BE-AUTH-007": {
+      "severity": "HIGH",
+      "service": "rez-auth-service",
+      "category": "User Creation Race",
+      "issue": "Upsert Creates Multiple Users on Concurrent OTP Verify",
+      "description": "Two requests verify OTP for same phone simultaneously. Both execute upsert before seeing each other's result. One user's session creation lost.",
+      "impact": "Race condition - one user's auth session silently ignored",
+      "fix_required": "Ensure unique index on phoneNumber, catch duplicate key errors, use matchedCount to detect new user"
+    },
+    "BE-PAY-001": {
+      "severity": "HIGH",
+      "service": "rez-payment-service",
+      "category": "Amount Calculations",
+      "issue": "Floating-point precision in refund full/partial detection",
+      "description": "Refund status uses floating-point comparison. refundedAmount field has no decimal constraint. 99.999 refund treated as full if rounding differs.",
+      "impact": "Reconciliation errors - merchants see refunds marked full when partial occurred",
+      "fix_required": "Add schema validation to enforce 2 decimal place precision on refundedAmount"
+    },
+    "BE-PAY-017": {
+      "severity": "HIGH",
+      "service": "rez-payment-service",
+      "category": "IDOR",
+      "issue": "getMerchantSettlements doesn't validate merchantId ownership",
+      "description": "settlementsHandler accepts req.merchantId without verifying authenticated user owns that merchant",
+      "impact": "Information disclosure - merchant can view another merchant's payment history and settlements",
+      "fix_required": "Verify req.merchantId matches authenticated merchant from JWT payload"
+    }
+  },
+  "money_critical_services_status": {
+    "rez-payment-service": {
+      "total_high_bugs": 5,
+      "unfixed_critical": ["BE-PAY-002", "BE-PAY-009", "BE-PAY-025"],
+      "unfixed_high": ["BE-PAY-001", "BE-PAY-017"],
+      "impact": "Direct payment processing, wallet credits, settlement - HIGHEST PRIORITY"
+    },
+    "rez-order-service": {
+      "total_high_bugs": 13,
+      "status": "MOST FIXED - previous phase completed 11 of 13 fixes",
+      "unfixed": "BE-ORD-024 (deferred, needs scheduler)",
+      "impact": "Order lifecycle, inventory, refunds"
+    },
+    "rez-wallet-service": {
+      "total_high_bugs": 0,
+      "note": "No HIGH severity - 20+ MEDIUM severity issues exist around concurrency",
+      "impact": "Wallet balance, coin ledger - MEDIUM priority"
+    },
+    "rez-finance-service": {
+      "total_high_bugs": 2,
+      "unfixed": ["BE-FIN-001", "BE-FIN-014"],
+      "impact": "BNPL, loan disbursement - CRITICAL for credit products"
+    },
+    "rez-merchant-service": {
+      "total_high_bugs": 7,
+      "unfixed_critical": ["BE-MER-002", "BE-MER-003"],
+      "unfixed_high": ["BE-MER-004", "BE-MER-010", "BE-MER-012", "BE-MER-013", "BE-MER-036"],
+      "impact": "Merchant onboarding, KYC, profile - CRITICAL for compliance"
+    },
+    "rez-auth-service": {
+      "total_high_bugs": 7,
+      "unfixed": ["BE-AUTH-005", "BE-AUTH-007", "BE-AUTH-015", "BE-AUTH-016", "BE-AUTH-023", "BE-AUTH-033", "BE-AUTH-034"],
+      "impact": "User authentication, security"
+    },
+    "rez-api-gateway": {
+      "total_high_bugs": 6,
+      "unfixed": ["BE-GW-009", "BE-GW-011", "BE-GW-014", "BE-GW-020", "BE-GW-026", "BE-GW-028"],
+      "impact": "API security, rate limiting, caching"
+    }
+  },
+  "recommended_fix_order": [
+    "BE-MER-002 (critical - merchant self-verification)",
+    "BE-MER-003 (critical - bank data encryption)",
+    "BE-PAY-002 (critical - replay attack vector)",
+    "BE-PAY-009 (high - wallet credit without payment verification)",
+    "BE-PAY-025 (high - double wallet credit)",
+    "BE-PAY-001 (high - amount precision)",
+    "BE-PAY-017 (high - merchant IDOR)",
+    "BE-AUTH-005 (high - OTP race condition)",
+    "BE-AUTH-007 (high - user creation race)",
+    "BE-MER-004 (high - onboarding bypass)",
+    "BE-MER-010 (high - bank details validation)",
+    "BE-MER-012 (high - team auth context)",
+    "BE-FIN-001 (high - BNPL limit reversal)",
+    "BE-FIN-014 (high - loan disbursement concurrency)",
+    "BE-GW-009 (high - cookie fallback security)",
+    "BE-GW-011 (high - rate limit burst)",
+    "BE-GW-014 (high - auth cache bypass)",
+    "BE-GW-020 (high - CORS credentials)",
+    "BE-GW-026 (high - cache key includes token)",
+    "BE-GW-028 (high - auth format validation)"
+  ],
+  "implementation_notes": {
+    "note1": "BE-MER-002 and BE-MER-003 are MOST CRITICAL - directly affect merchant verification and data security",
+    "note2": "BE-PAY-002, BE-PAY-009, BE-PAY-025 form a transaction safety trio - fixing all three prevents wallet corruption",
+    "note3": "BE-AUTH-005 and BE-AUTH-007 prevent user creation races - critical for authentication integrity",
+    "note4": "Gateway bugs (BE-GW-*) are infrastructure-level - affect all services",
+    "note5": "Many fixes are configuration or middleware-level - can be deployed independently"
+  },
+  "estimated_fixes": {
+    "quick_wins_10_min": ["BE-PAY-001", "BE-MER-004", "BE-GW-028"],
+    "medium_20_30_min": ["BE-MER-002", "BE-MER-003", "BE-AUTH-005", "BE-PAY-017", "BE-GW-011"],
+    "complex_45_60_min": ["BE-PAY-002", "BE-PAY-009", "BE-PAY-025", "BE-AUTH-007", "BE-FIN-001"],
+    "requires_redesign": ["BE-FIN-014", "BE-AUTH-015", "BE-AUTH-016"]
+  },
+  "success_criteria": {
+    "security": "No replay attacks, no merchant self-verification, no unencrypted PII",
+    "financial": "No double wallet credits, no fake payments processed, no IDOR on settlements",
+    "auth": "No concurrent user creation races, no OTP verify races, proper error messaging",
+    "compliance": "KYC enforcement, bank data encryption, audit trails"
+  }
+}

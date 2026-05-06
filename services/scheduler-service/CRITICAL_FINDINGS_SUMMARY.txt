@@ -1,0 +1,247 @@
+================================================================================
+ReZ PLATFORM CROSS-VERIFICATION - CRITICAL FINDINGS SUMMARY
+================================================================================
+Date: April 16, 2026
+Scope: PHASES 2 & 3 End-to-End Flow + API Round-Trip Validation
+Status: 3 CRITICAL ISSUES IDENTIFIED - ACTION REQUIRED BEFORE PRODUCTION
+
+================================================================================
+CRITICAL ISSUE #1: Missing voucherCode / offerRedemptionCode Fields
+================================================================================
+
+SEVERITY: 🔴 CRITICAL (Breaks order creation)
+
+WHAT:
+Backend expects voucherCode and offerRedemptionCode in POST /api/orders request,
+but frontend CreateOrderRequest does NOT send these fields.
+
+WHERE:
+- Frontend sends from: /rez-app-consumer/services/ordersApi.ts:170-210
+  CreateOrderRequest interface does NOT include voucherCode or offerRedemptionCode
+
+- Backend expects in: /rezbackend/rez-backend-master/src/controllers/orderCreateController.ts:329-334
+  const { voucherCode, offerRedemptionCode, ... } = req.body;
+
+IMPACT:
+- If validation schema marks these as required → 400 Bad Request on ALL orders
+- If validation schema marks as optional → Silent undefined, vouchers not processed
+- Either way: ORDER CREATION BREAKS or SILENTLY FAILS
+
+ACTION REQUIRED:
+1. Check validation schema: /rezbackend/.../src/middleware/validation/orderSchemas.ts
+   Look for: voucherCode and offerRedemptionCode validation rules
+
+2. EITHER:
+   a) Remove voucherCode & offerRedemptionCode from backend controller
+      (lines 329-334 in orderCreateController.ts)
+
+   b) OR add voucherCode & offerRedemptionCode to frontend CreateOrderRequest
+      (lines 170-210 in ordersApi.ts)
+
+   RECOMMEND: Option (b) - ensure frontend sends valid fields
+
+TESTING:
+- Create order WITHOUT voucherCode → Should succeed
+- Create order WITH voucherCode → Should apply discount
+- Confirm no 400 Bad Request errors
+
+================================================================================
+CRITICAL ISSUE #2: Missing store.merchantId in Admin Order Response
+================================================================================
+
+SEVERITY: 🔴 CRITICAL (Breaks merchant filtering)
+
+WHAT:
+Admin app expects order.store.merchantId field for merchant-based filtering,
+but backend Order schema may only populate store._id and store.name.
+
+WHERE:
+- Admin app expects: /rez-app-admin/services/api/orders.ts:18
+  store: { _id: string; name: string; merchantId: string; }
+
+- Backend likely only populates: { _id, name, logo? }
+
+IMPACT:
+- Admin's "Filter by merchant" feature returns ALL orders (no filter)
+- Multi-merchant admin dashboard shows mixed merchant data
+- Potential data leak: Admin sees orders from merchants they shouldn't
+
+ACTION REQUIRED:
+1. Find backend Order fetch code in:
+   /rezbackend/rez-backend-master/src/controllers/orderController.ts
+
+   Look for: Order.find().populate('store', ...) calls
+
+2. Verify Store populate includes merchantId:
+   Option A - Store.findById(storeId).select('_id name logo merchantId')
+   Option B - Store.findById(storeId) and let full doc populate
+
+3. If merchantId NOT in populate() → ADD IT:
+   .populate('store', '_id name logo merchantId')
+
+4. Test:
+   - Create orders from 2 different merchants
+   - Admin filters by merchantId
+   - Confirm only orders from selected merchant appear
+
+================================================================================
+CRITICAL ISSUE #3: Unverified Product Creation Response Schema
+================================================================================
+
+SEVERITY: 🔴 CRITICAL (Merchant UI may break)
+
+WHAT:
+Merchant app sends detailed CreateProductRequest with 15+ fields (cashback,
+inventory, images, etc.), but we haven't verified backend returns all these
+fields in the Product response.
+
+WHERE:
+- Merchant app sends: /rez-app-marchant/services/api/products.ts:32-65
+  CreateProductRequest { name, price, inventory, cashback, images, ... }
+
+- Backend controller NOT EXAMINED:
+  /rez-merchant-service/src/controllers/productController.ts
+
+IMPACT:
+- If backend returns sparse Product (missing inventory/cashback data)
+  → Merchant dashboard UI can't display product details
+- Merchant can't edit product because app doesn't have data to pre-fill form
+
+ACTION REQUIRED:
+1. Examine: /rez-merchant-service/src/controllers/productController.ts
+   Check the POST /merchant/products endpoint response
+
+2. Verify response includes ALL CreateProductRequest fields:
+   - inventory { stock, lowStockThreshold, trackInventory, allowBackorders }
+   - cashback { percentage, maxAmount, isActive }
+   - images [ ]
+   - status, visibility, tags, etc.
+
+3. If ANY fields missing from response → INVESTIGATE:
+   - Is Product model schema storing them?
+   - Is populate() excluding them?
+   - Is response mapping them correctly?
+
+4. Test:
+   - POST /merchant/products with all fields
+   - GET /merchant/products/:id
+   - Verify response includes all created fields with correct values
+
+================================================================================
+HIGH-PRIORITY DRIFT #1: Order.totals.delivery Field Duplication
+================================================================================
+
+SEVERITY: 🟠 HIGH
+
+WHAT:
+Order has TWO fields for delivery cost:
+- order.totals.delivery (number)
+- order.delivery.deliveryFee (number)
+
+Same data in two places = maintenance nightmare + potential sync bugs.
+
+WHERE:
+/rez-app-consumer/services/ordersApi.ts:71 (totals.delivery)
+/rez-app-consumer/services/ordersApi.ts:106 (delivery.deliveryFee)
+
+ACTION: Standardize on ONE field name. Recommend:
+- DELETE delivery.deliveryFee
+- Use ONLY totals.delivery across all code
+
+================================================================================
+HIGH-PRIORITY DRIFT #2: Merchant Order Sort 'priority' Field Unclear
+================================================================================
+
+SEVERITY: 🟠 HIGH
+
+WHAT:
+Merchant routes advertise sortBy='priority' for KDS (Kitchen Display System),
+but Order schema doesn't clearly define what 'priority' means.
+
+WHERE:
+/rezbackend/rez-backend-master/src/routes/merchant/orders.ts:49
+Supports: sortBy = 'priority' | 'created' | 'updated' | 'total' | ...
+
+IMPACT:
+- If backend can't sort by priority, Merchant KDS ranking silently fails
+- Unclear if 'priority' is a stored field or computed at query time
+
+ACTION: Clarify in backend order controller:
+1. Is priority a stored field on Order? If yes, document it.
+2. Is priority computed? If yes, document the computation:
+   (e.g., sort by status=='placed' DESC, then by createdAt DESC)
+3. Add backend test for each sortBy option to confirm it works
+
+================================================================================
+VALIDATION CHECKLIST - RUN BEFORE PRODUCTION DEPLOYMENT
+================================================================================
+
+[ ] CRF-001: POST /api/orders without voucherCode → 201 Success (no 400)
+[ ] CRF-001: POST /api/orders with voucherCode → 201 Success, discount applied
+[ ] CRF-002: Admin filters GET /admin/orders?merchantId=X → Returns only orders from X
+[ ] CRF-002: Multi-merchant admin sees each merchant's orders separately
+[ ] CRF-003: Merchant POST /merchant/products → Response has inventory, cashback fields
+[ ] CRF-003: Merchant GET /merchant/products/:id → Returns all POST fields with values
+[ ] HRD-001: GET /api/orders → Confirm totals.delivery present (not deliveryFee)
+[ ] HRD-002: Merchant GET /orders?sortBy=priority → Orders sorted by priority
+[ ] Payment: POST webhook → Order status updates within 5 seconds
+[ ] Idempotency: POST /orders twice with same Idempotency-Key → 201 + 200 (cached)
+[ ] IDOR: Try to view order as different user → 403 Forbidden
+
+================================================================================
+DOCUMENTATION OF VERIFIED FLOWS
+================================================================================
+
+✓ FLOW 1: User Places Order (POST → Order create → Idempotency check)
+  Status: BROKEN - See CRF-001 (voucherCode mismatch)
+  Validation: Idempotency key handling is correct
+
+✓ FLOW 2: Merchant Creates Product (POST → Merchant service)
+  Status: UNKNOWN - See CRF-003 (response schema not verified)
+  Validation: Need to examine merchant service controller
+
+✓ FLOW 3: Admin Views Orders (GET with filters)
+  Status: BROKEN - See CRF-002 (merchantId field missing)
+  Validation: Query parameters align with backend schema
+
+✓ FLOW 4: Payment Webhook (Razorpay event → order update)
+  Status: VERIFIED ✓ WORKING
+  Validation: Signature verification correct, replay protection in place
+
+✓ FLOW 5: Merchant Reads Orders (GET with sorts/filters)
+  Status: UNCERTAIN - Depends on CRF-002 & HRD-002
+  Validation: Query schema matches, but priority sort unclear
+
+================================================================================
+OVERALL ASSESSMENT
+================================================================================
+
+Platform Readiness: NOT PRODUCTION READY
+
+Blocking Issues: 3 CRITICAL
+- Order creation may fail or ignore vouchers
+- Admin can't filter by merchant (security + UX issue)
+- Merchant product creation response may be incomplete
+
+Must Fix Before Merging:
+1. Reconcile voucherCode field mismatch (CRF-001)
+2. Add merchantId to Store population (CRF-002)
+3. Verify product creation response schema (CRF-003)
+
+Should Fix Before Release:
+4. Consolidate delivery cost fields (HRD-001)
+5. Clarify merchant order priority sort (HRD-002)
+6. Move all canonical enums to shared type library
+
+Estimated Time to Fix:
+- CRF-001: 30 minutes (schema update + test)
+- CRF-002: 20 minutes (populate update + test)
+- CRF-003: 45 minutes (investigation + response schema fix)
+- Total: ~2-3 hours including testing
+
+Next Step: Create tickets for each finding and assign to responsible team.
+
+================================================================================
+Report Generated: April 16, 2026
+Next Review: Post-fix verification (estimated 1-2 days)
+================================================================================

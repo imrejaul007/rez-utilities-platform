@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>REZ Consumer App — Full UI/UX Plan</title>
+<style>
+  :root {
+    --navy: #1a3a52;
+    --mustard: #FFC857;
+    --white: #FFFFFF;
+    --border: #E2E8F0;
+    --light: #F8F9FA;
+    --body: #475569;
+    --muted: #94A3B8;
+    --green: #10B981;
+    --red: #EF4444;
+    --amber: #F59E0B;
+    --mustard-light: #FFFBEB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #F1F5F9;
+    color: var(--navy);
+    line-height: 1.6;
+  }
+  .page-header {
+    background: var(--navy);
+    color: white;
+    padding: 40px 32px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 24px;
+    background: #F1F5F9;
+    border-radius: 24px 24px 0 0;
+  }
+  .page-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  .page-header p { font-size: 14px; opacity: 0.7; }
+  .badge {
+    display: inline-block;
+    background: var(--mustard);
+    color: var(--navy);
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* Section blocks */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 20px; font-weight: 800; color: var(--navy);
+    margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .num {
+    background: var(--mustard);
+    color: var(--navy);
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; flex-shrink: 0;
+  }
+  .section-sub { font-size: 13px; color: var(--body); margin-bottom: 20px; margin-left: 38px; }
+
+  /* Card */
+  .card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .card-body { font-size: 13px; color: var(--body); line-height: 1.7; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* Tag */
+  .tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px;
+    margin-right: 4px; margin-bottom: 4px;
+  }
+  .tag-p0 { background: #FEE2E2; color: #DC2626; }
+  .tag-p1 { background: #FEF3C7; color: #D97706; }
+  .tag-p2 { background: #DCFCE7; color: #16A34A; }
+  .tag-new { background: #EDE9FE; color: #7C3AED; }
+  .tag-fix { background: #DBEAFE; color: #1D4ED8; }
+
+  /* Pill */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--mustard-light);
+    border: 1px solid var(--mustard);
+    color: var(--navy); font-size: 12px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px;
+  }
+
+  /* Phone wireframe */
+  .phone-row { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 8px; }
+  .phone {
+    flex-shrink: 0;
+    width: 200px;
+    background: white;
+    border-radius: 24px;
+    border: 2px solid var(--navy);
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(26,58,82,0.12);
+  }
+  .phone-label {
+    background: var(--navy);
+    color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 6px 12px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .phone-screen { padding: 10px 8px; }
+
+  /* Mock components in wireframe */
+  .mock-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .mock-avatar { width: 28px; height: 28px; border-radius: 14px; background: var(--border); }
+  .mock-logo { font-size: 13px; font-weight: 900; color: var(--navy); }
+  .mock-icons { display: flex; gap: 8px; }
+  .mock-icon { width: 24px; height: 24px; border-radius: 8px; background: var(--light); }
+
+  .mock-pill {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 9px; color: var(--navy); font-weight: 600;
+    display: flex; align-items: center; gap: 5px;
+    margin-bottom: 6px;
+  }
+  .mock-dot { width: 6px; height: 6px; border-radius: 3px; background: var(--navy); flex-shrink: 0; }
+
+  .mock-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 6px;
+  }
+  .mock-card-accent { border-left: 3px solid var(--mustard); }
+  .mock-card-title { font-size: 9px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .mock-card-sub { font-size: 8px; color: var(--muted); }
+  .mock-card-row { display: flex; justify-content: space-between; align-items: center; }
+  .mock-cta {
+    background: var(--mustard);
+    color: var(--navy); font-size: 8px; font-weight: 700;
+    padding: 3px 8px; border-radius: 6px;
+    display: inline-block;
+  }
+  .mock-amount { font-size: 16px; font-weight: 900; color: var(--navy); }
+  .mock-label { font-size: 7px; color: var(--muted); }
+  .mock-strip {
+    background: white; border: 1px solid var(--border);
+    border-left: 3px solid var(--mustard);
+    border-radius: 8px;
+    padding: 5px 7px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mock-strip-text { font-size: 8px; font-weight: 600; color: var(--navy); }
+
+  .mock-nearby {
+    display: flex; gap: 5px; margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .mock-nearby-card {
+    flex: 1; min-width: 0;
+    background: var(--light); border-radius: 8px;
+    padding: 5px; text-align: center;
+  }
+  .mock-nearby-img {
+    width: 100%; height: 28px;
+    background: var(--border); border-radius: 5px; margin-bottom: 3px;
+  }
+  .mock-nearby-name { font-size: 7px; color: var(--navy); font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .mock-nearby-save { font-size: 7px; color: #059669; font-weight: 700; }
+
+  .mock-section-label {
+    font-size: 9px; font-weight: 800; color: var(--navy);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+
+  .mock-progress {
+    background: var(--light); border-radius: 10px; height: 4px; margin: 4px 0;
+    overflow: hidden;
+  }
+  .mock-progress-fill { height: 100%; background: var(--mustard); border-radius: 10px; }
+
+  .mock-dots { display: flex; gap: 3px; align-items: center; margin: 4px 0; }
+  .mock-dot-filled { width: 14px; height: 14px; border-radius: 7px; background: var(--mustard); }
+  .mock-dot-empty { width: 14px; height: 14px; border-radius: 7px; background: var(--border); }
+
+  .mock-bottom-nav {
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 6px 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .mock-nav-item { text-align: center; }
+  .mock-nav-icon { font-size: 14px; }
+  .mock-nav-label { font-size: 7px; color: var(--muted); }
+  .mock-nav-active .mock-nav-label { color: var(--navy); font-weight: 700; }
+  .mock-fab {
+    width: 36px; height: 36px; border-radius: 18px;
+    background: var(--navy);
+    border: 2px solid var(--mustard);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    margin-top: -18px;
+  }
+
+  /* Habit loop diagram */
+  .loop-flow {
+    display: flex; align-items: center; gap: 0;
+    overflow-x: auto; padding: 4px;
+  }
+  .loop-step {
+    flex: 1; min-width: 100px;
+    background: white; border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 10px; text-align: center;
+  }
+  .loop-step .icon { font-size: 22px; margin-bottom: 6px; }
+  .loop-step .step-label { font-size: 11px; font-weight: 800; color: var(--navy); }
+  .loop-step .step-desc { font-size: 10px; color: var(--body); margin-top: 4px; }
+  .loop-arrow {
+    color: var(--mustard); font-size: 20px; font-weight: 900;
+    margin: 0 -4px; flex-shrink: 0; z-index: 1;
+  }
+
+  /* Component spec table */
+  .spec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .spec-table th {
+    background: var(--light); text-align: left;
+    padding: 10px 12px; font-weight: 700; color: var(--navy);
+    border-bottom: 2px solid var(--border);
+  }
+  .spec-table td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: top; color: var(--body);
+  }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table .comp-name { font-weight: 700; color: var(--navy); font-size: 13px; }
+
+  /* Alert box */
+  .alert {
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;
+    display: flex; gap: 10px;
+  }
+  .alert-warn { background: #FEF3C7; border: 1px solid #FDE68A; }
+  .alert-danger { background: #FEE2E2; border: 1px solid #FECACA; }
+  .alert-success { background: #DCFCE7; border: 1px solid #A7F3D0; }
+  .alert-info { background: #DBEAFE; border: 1px solid #BFDBFE; }
+  .alert-icon { font-size: 18px; flex-shrink: 0; }
+  .alert-body { font-size: 13px; color: var(--navy); line-height: 1.6; }
+  .alert-body strong { font-weight: 700; }
+
+  /* Time-aware table */
+  .time-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .time-table th {
+    background: var(--navy); color: white;
+    padding: 10px 12px; font-weight: 700; text-align: left;
+  }
+  .time-table td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .time-table tr:nth-child(even) td { background: var(--light); }
+  .time-slot-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    display: inline-block;
+  }
+  .slot-morning { background: #FEF3C7; color: #92400E; }
+  .slot-lunch { background: #DCFCE7; color: #065F46; }
+  .slot-evening { background: #FDE8D8; color: #9A3412; }
+  .slot-night { background: #EDE9FE; color: #4C1D95; }
+
+  /* Priority board */
+  .priority-col { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+  .priority-col-header {
+    padding: 12px 16px; font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .p0-header { background: #FEE2E2; color: #DC2626; }
+  .p1-header { background: #FEF3C7; color: #D97706; }
+  .p2-header { background: #DCFCE7; color: #16A34A; }
+  .priority-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px; color: var(--body);
+    display: flex; gap: 8px;
+  }
+  .priority-item:last-child { border-bottom: none; }
+  .priority-item .p-num {
+    font-weight: 800; color: var(--navy); flex-shrink: 0;
+  }
+
+  /* IA tree */
+  .ia-tree { font-size: 13px; }
+  .ia-root {
+    background: var(--navy); color: white;
+    padding: 10px 16px; border-radius: 10px;
+    font-weight: 700; text-align: center; margin-bottom: 4px;
+  }
+  .ia-branch {
+    display: flex; gap: 8px; justify-content: center;
+    position: relative; padding-top: 16px;
+  }
+  .ia-branch::before {
+    content: ''; position: absolute; top: 0; left: 50%;
+    width: 1px; height: 16px; background: var(--border);
+  }
+  .ia-node {
+    flex: 1; background: white; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; text-align: center;
+    font-size: 11px; font-weight: 600; color: var(--navy);
+  }
+  .ia-node.active { border-color: var(--mustard); background: var(--mustard-light); }
+  .ia-children {
+    margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .ia-child {
+    font-size: 10px; color: var(--body);
+    padding: 2px 0;
+  }
+
+  /* Notification card */
+  .notif-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px;
+    margin-bottom: 8px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .notif-icon { font-size: 20px; flex-shrink: 0; }
+  .notif-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .notif-body { font-size: 12px; color: var(--body); }
+  .notif-meta { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* Component order card */
+  .comp-order {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .comp-row {
+    display: flex; align-items: center; gap: 10px;
+    background: white; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px;
+    font-size: 12px;
+  }
+  .comp-row.mustard-accent { border-left: 3px solid var(--mustard); }
+  .comp-row.removed { background: #FEE2E2; border-color: #FECACA; text-decoration: line-through; opacity: 0.7; }
+  .comp-row.new-comp { background: #EDE9FE; border-color: #C4B5FD; }
+  .comp-row .order-num {
+    background: var(--navy); color: white;
+    width: 20px; height: 20px; border-radius: 10px;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .comp-row .comp-name-inline { font-weight: 700; color: var(--navy); flex: 1; }
+  .comp-row .comp-desc { font-size: 11px; color: var(--body); }
+
+  hr.section-divider { border: none; height: 1px; background: var(--border); margin: 36px 0; }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="badge">STRATEGIC PRODUCT DOCUMENT</div>
+  <h1>REZ Consumer App — Full UI/UX Plan</h1>
+  <p>Based on: Daily Habit Loop Research · Bangalore Micro-Moment Map · Magicpin / Dineout Failure Analysis</p>
+</div>
+
+<div class="container">
+
+  <!-- ─── SECTION 0: KEY INSIGHT ─────────────────────────────── -->
+  <div class="section">
+    <div class="alert alert-warn" style="margin-top:4px;">
+      <div class="alert-icon">🎯</div>
+      <div class="alert-body">
+        <strong>Core thesis from your research:</strong> Daily usage doesn't come from features. It comes from owning a micro-moment — the 10-second decision window where a user thinks "where should I eat / go / spend right now?" ReZ must become the default app opened in that moment. This UI/UX plan is built entirely around this principle.
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 1: RESEARCH SYNTHESIS ────────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span> Research Synthesis</div>
+    <div class="section-sub">What the document tells us — distilled into design requirements</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🔥 5 Triggers That Create Daily Opens</div>
+        <div class="card-body">
+          <ol style="padding-left:18px;line-height:2">
+            <li><strong>Daily spending decisions</strong> — "where to eat/go today"</li>
+            <li><strong>Savings tracking psychology</strong> — "₹480 saved this week, ₹120 more to VIP"</li>
+            <li><strong>Time-limited urgency</strong> — "lunch deals live now, slots filling"</li>
+            <li><strong>Trial discovery habit</strong> — "new cafe drop today" (Smytten model, hyperlocal)</li>
+            <li><strong>Gamification progress</strong> — streak visible, next reward close</li>
+          </ol>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚨 Why Magicpin / Dineout / Nearbuy Failed</div>
+        <div class="card-body">
+          <ul style="padding-left:18px;line-height:2">
+            <li>Solved <strong>discovery</strong>, not <strong>decision</strong></li>
+            <li>Wide supply, shallow micro-cluster depth</li>
+            <li>Cashback invisible — not cumulative, not emotional</li>
+            <li>No time-contextual urgency (same feed all day)</li>
+            <li>Gamification without social context (solo = boring)</li>
+            <li>Generic notifications → muted → habit broken</li>
+            <li>Brand confusion: deals + payment + discovery + gaming all at once</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--mustard);">
+      <div class="card-title">⭐ Golden Daily Habit Formula (from your doc)</div>
+      <div class="card-body" style="font-size:14px;">
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;">
+          <div style="background:var(--mustard-light);border:1px solid var(--mustard);padding:8px 14px;border-radius:10px;font-weight:700;color:var(--navy);">Need</div>
+          <div style="font-size:18px;color:var(--muted);">+</div>
+          <div style="background:var(--mustard-light);border:1px solid var(--mustard);padding:8px 14px;border-radius:10px;font-weight:700;color:var(--navy);">Saving</div>
+          <div style="font-size:18px;color:var(--muted);">+</div>
+          <div style="background:var(--mustard-light);border:1px solid var(--mustard);padding:8px 14px;border-radius:10px;font-weight:700;color:var(--navy);">Urgency</div>
+          <div style="font-size:18px;color:var(--muted);">+</div>
+          <div style="background:var(--mustard-light);border:1px solid var(--mustard);padding:8px 14px;border-radius:10px;font-weight:700;color:var(--navy);">Progress</div>
+          <div style="font-size:18px;color:var(--muted);">+</div>
+          <div style="background:var(--mustard-light);border:1px solid var(--mustard);padding:8px 14px;border-radius:10px;font-weight:700;color:var(--navy);">Local Relevance</div>
+          <div style="font-size:18px;color:var(--muted)">=</div>
+          <div style="background:var(--navy);color:white;padding:8px 14px;border-radius:10px;font-weight:800;">Daily Open</div>
+        </div>
+        <div style="margin-top:12px;color:var(--body);">All 5 must be present simultaneously on the home screen. Missing even one breaks the loop.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 2: DAILY HABIT LOOP ──────────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span> Daily Habit Loop Architecture</div>
+    <div class="section-sub">The behavioral loop every screen and component must serve</div>
+
+    <div class="loop-flow">
+      <div class="loop-step">
+        <div class="icon">🔔</div>
+        <div class="step-label">TRIGGER</div>
+        <div class="step-desc">Push at 12 PM:<br/>"Lunch deals near office live"</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="icon">📱</div>
+        <div class="step-label">OPEN</div>
+        <div class="step-desc">Decision screen loads instantly with 5 nearby options + savings</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="icon">⚡</div>
+        <div class="step-label">ACT</div>
+        <div class="step-desc">Tap deal → pay / claim / book in under 10 seconds</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="icon">🎁</div>
+        <div class="step-label">REWARD</div>
+        <div class="step-desc">Coins animate + savings meter updates + streak increases</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="icon">📈</div>
+        <div class="step-label">PROGRESS</div>
+        <div class="step-desc">"4 days to VIP unlock" keeps tomorrow's open inevitable</div>
+      </div>
+    </div>
+
+    <div class="alert alert-danger" style="margin-top:16px;">
+      <div class="alert-icon">❌</div>
+      <div class="alert-body">
+        <strong>Current gap:</strong> The loop breaks at TRIGGER (persona is always 'general', not student/employee) and at PROGRESS (VisitStreakCard shows a counter but there's no "streak → today's deal" connector). User earns coins but doesn't see what they're progressing toward in context.
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 3: INFORMATION ARCHITECTURE ─────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span> Information Architecture</div>
+    <div class="section-sub">Navigation structure and screen hierarchy</div>
+
+    <div class="card">
+      <div class="card-title">App Navigation Structure</div>
+      <div style="margin-top:16px;">
+        <div class="ia-tree">
+          <div class="ia-root">REZ Consumer App</div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px;">
+            <div class="ia-node active" style="grid-column:1">
+              <div>🏠 Home</div>
+              <div style="font-size:9px;color:var(--body);margin-top:4px;font-weight:400;">Decision Screen<br/>THE HABIT HUB</div>
+              <div class="ia-children">
+                <div class="ia-child">• Decision Strip</div>
+                <div class="ia-child">• Savings Hero</div>
+                <div class="ia-child">• Nearby Now</div>
+                <div class="ia-child">• Streak/Progress</div>
+                <div class="ia-child">• Daily Check-In</div>
+                <div class="ia-child">• Try Drop</div>
+                <div class="ia-child">• Earn Coins</div>
+              </div>
+            </div>
+            <div class="ia-node">
+              <div>📍 Near-U</div>
+              <div style="font-size:9px;color:var(--body);margin-top:4px;font-weight:400;">Discovery<br/>by location</div>
+              <div class="ia-children">
+                <div class="ia-child">• Map view</div>
+                <div class="ia-child">• Category filter</div>
+                <div class="ia-child">• Live availability</div>
+              </div>
+            </div>
+            <div class="ia-node">
+              <div>💳 REZ Pay</div>
+              <div style="font-size:9px;color:var(--body);margin-top:4px;font-weight:400;">Pay-in-Store<br/>FAB button</div>
+              <div class="ia-children">
+                <div class="ia-child">• Scan QR</div>
+                <div class="ia-child">• Coin wallet</div>
+                <div class="ia-child">• Transaction log</div>
+              </div>
+            </div>
+            <div class="ia-node">
+              <div>🏪 Mall</div>
+              <div style="font-size:9px;color:var(--body);margin-top:4px;font-weight:400;">Online shopping<br/>cashback</div>
+            </div>
+            <div class="ia-node">
+              <div>💎 Prive</div>
+              <div style="font-size:9px;color:var(--body);margin-top:4px;font-weight:400;">Premium<br/>experiences</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-top:16px;">
+        <div class="alert-icon">💡</div>
+        <div class="alert-body"><strong>Strategic note:</strong> Home tab must be the <em>decision engine</em>, not a browse screen. Near-U handles exploration. The home screen should answer "what do I do right now" in under 3 seconds.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 4: MICRO-MOMENT MAP ──────────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span> Micro-Moment Map — Bangalore</div>
+    <div class="section-sub">What the home screen must show for each user type × time combination (from your research)</div>
+
+    <div class="grid-2">
+      <!-- Students -->
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <span style="background:#EDE9FE;color:#7C3AED;padding:4px 10px;border-radius:20px;font-size:12px;">🎓 Students</span>
+          Bangalore campuses
+        </div>
+        <table class="time-table" style="border-radius:12px;overflow:hidden;">
+          <tr>
+            <th>Time</th>
+            <th>Real Need</th>
+            <th>What REZ Shows</th>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-morning">8–11 AM</span></td>
+            <td>Chai, breakfast, print shops, recharge</td>
+            <td>₹29 coffee deals, "Popular near campus right now" (live count)</td>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-lunch">12–3 PM</span></td>
+            <td>Lunch decision (group), budget combos</td>
+            <td><strong>Top 5 lunch deals within 500m</strong> · Group cashback unlock · Countdown timer</td>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-evening">4–7 PM</span></td>
+            <td>Hangout, gaming, dessert, social time</td>
+            <td>Trending hangout spots · Trial tasting offers · Campus leaderboard</td>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-night">8 PM+</span></td>
+            <td>Late snacks, night cafes, curiosity</td>
+            <td>"Open now near you" · Flash deal · Expiring coin alert</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Employees -->
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <span style="background:#DBEAFE;color:#1D4ED8;padding:4px 10px;border-radius:20px;font-size:12px;">💼 Employees</span>
+          Office clusters
+        </div>
+        <table class="time-table" style="border-radius:12px;overflow:hidden;">
+          <tr>
+            <th>Time</th>
+            <th>Real Need</th>
+            <th>What REZ Shows</th>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-morning">8–10 AM</span></td>
+            <td>Quick coffee, breakfast, medicine, recharge</td>
+            <td>"Grab & go near office" · Wallet cashback nudge</td>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-lunch">12–2 PM</span></td>
+            <td>Fast decision, nearby options, time saving</td>
+            <td><strong>Lunch ranking by service speed</strong> · Office cluster deals · "X slots left"</td>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-evening">6–8 PM</span></td>
+            <td>Grooming, gym, casual dining, date</td>
+            <td>Same-day booking deals · Trial gym pass · Happy hour offers</td>
+          </tr>
+          <tr>
+            <td><span class="time-slot-badge slot-night">Weekends</span></td>
+            <td>Date dining, home services, activities</td>
+            <td>Prepaid dining packs · Utility cashback · Event discovery</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="alert alert-warn" style="margin-top:16px;">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-body">
+        <strong>Critical missing piece today:</strong> <code>TimeAwareContextPill</code> has the copy table built for student/employee but <code>index.tsx</code> always passes <code>persona='general'</code>. The persona must be detected from the user's profile (college/workplace location) and stored in Zustand. Without this, everyone sees generic copy and the micro-moment targeting is zero.
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 5: HOME SCREEN COMPONENT ORDER ──────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span> Home Screen — Revised Component Order</div>
+    <div class="section-sub">Every component has one job. Order drives behavior. Deals must come BEFORE gamification, not after.</div>
+
+    <div class="grid-2">
+      <!-- Current order -->
+      <div class="card">
+        <div class="card-title" style="color:var(--red);">❌ Current Order (Broken Habit Loop)</div>
+        <div class="comp-order" style="margin-top:12px;">
+          <div class="comp-row">
+            <div class="order-num">1</div>
+            <div class="comp-name-inline">StickySearchHeader</div>
+            <div class="comp-desc">OK</div>
+          </div>
+          <div class="comp-row">
+            <div class="order-num">2</div>
+            <div class="comp-name-inline">TimeAwareContextPill</div>
+            <div class="comp-desc">persona always 'general' ❌</div>
+          </div>
+          <div class="comp-row">
+            <div class="order-num">3</div>
+            <div class="comp-name-inline">HeroCard (Savings)</div>
+            <div class="comp-desc">OK — shows savings amount</div>
+          </div>
+          <div class="comp-row">
+            <div class="order-num">4</div>
+            <div class="comp-name-inline">DailyCheckInStrip</div>
+            <div class="comp-desc">Good — but gamification before deals?</div>
+          </div>
+          <div class="comp-row">
+            <div class="order-num">5</div>
+            <div class="comp-name-inline">TryBeforeYouBuyCard</div>
+            <div class="comp-desc">Below-fold, gets skipped</div>
+          </div>
+          <div class="comp-row">
+            <div class="order-num">6</div>
+            <div class="comp-name-inline">VisitStreakCard</div>
+            <div class="comp-desc">No streak→deal connector ❌</div>
+          </div>
+          <div class="comp-row">
+            <div class="order-num">7</div>
+            <div class="comp-name-inline">EarnRezCoinsSection</div>
+            <div class="comp-desc">Far below fold, rarely seen</div>
+          </div>
+          <div class="comp-row">
+            <div class="order-num">8</div>
+            <div class="comp-name-inline">HomeTabSection</div>
+            <div class="comp-desc">Near-U / Mall tabs buried at bottom</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New order -->
+      <div class="card">
+        <div class="card-title" style="color:var(--green);">✅ New Order (Habit Loop Driven)</div>
+        <div class="comp-order" style="margin-top:12px;">
+          <div class="comp-row mustard-accent">
+            <div class="order-num">1</div>
+            <div class="comp-name-inline">StickySearchHeader</div>
+            <div class="comp-desc">+ persona badge (Student/Employee)</div>
+          </div>
+          <div class="comp-row mustard-accent">
+            <div class="order-num">2</div>
+            <div class="comp-name-inline">MicroMomentDecisionCard</div>
+            <div class="comp-desc" style="color:#7C3AED;">🆕 "5 places within 500m right now"</div>
+          </div>
+          <div class="comp-row mustard-accent">
+            <div class="order-num">3</div>
+            <div class="comp-name-inline">TimeAwareContextPill</div>
+            <div class="comp-desc">With LIVE nearby count from API</div>
+          </div>
+          <div class="comp-row mustard-accent">
+            <div class="order-num">4</div>
+            <div class="comp-name-inline">HeroCard (Savings)</div>
+            <div class="comp-desc">Savings summary + expiring coin alert</div>
+          </div>
+          <div class="comp-row mustard-accent">
+            <div class="order-num">5</div>
+            <div class="comp-name-inline">DailyCheckInStrip</div>
+            <div class="comp-desc">Habit anchor — daily 10 RC</div>
+          </div>
+          <div class="comp-row mustard-accent">
+            <div class="order-num">6</div>
+            <div class="comp-name-inline">StreakToDealConnector</div>
+            <div class="comp-desc" style="color:#7C3AED;">🆕 "Day 4 streak — here's today's deal"</div>
+          </div>
+          <div class="comp-row mustard-accent">
+            <div class="order-num">7</div>
+            <div class="comp-name-inline">TryDropCard</div>
+            <div class="comp-desc">Daily new trial — curiosity loop</div>
+          </div>
+          <div class="comp-row mustard-accent">
+            <div class="order-num">8</div>
+            <div class="comp-name-inline">EarnRezCoinsSection</div>
+            <div class="comp-desc">Multiple earning paths</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 6: WIREFRAMES ─────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span> Home Screen Wireframes</div>
+    <div class="section-sub">Key states across time × persona (critical to visualize these before coding)</div>
+
+    <div class="phone-row">
+
+      <!-- Student Lunch -->
+      <div>
+        <div style="text-align:center;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--navy);">🎓 Student · Lunch 12PM</div>
+        <div class="phone">
+          <div class="phone-label">HIGHEST PRIORITY STATE</div>
+          <div class="phone-screen">
+            <div class="mock-header">
+              <div style="font-size:11px;font-weight:900;color:var(--navy);">rez</div>
+              <div style="background:#EDE9FE;color:#7C3AED;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;">Student</div>
+              <div class="mock-icons">
+                <div class="mock-icon"></div>
+                <div class="mock-icon"></div>
+              </div>
+            </div>
+
+            <!-- Decision card (NEW) -->
+            <div class="mock-card" style="border-left:3px solid var(--mustard);background:var(--mustard-light);">
+              <div class="mock-card-title" style="color:#92400E;">🍔 Lunch deals near campus</div>
+              <div style="font-size:10px;font-weight:800;color:var(--navy);margin-bottom:3px;">7 options within 500m</div>
+              <div class="mock-card-sub">Sorted by savings · Budget combos from ₹79</div>
+              <div style="margin-top:5px;"><span class="mock-cta">See all 7 deals →</span></div>
+            </div>
+
+            <!-- Context pill -->
+            <div class="mock-pill">
+              <div class="mock-dot"></div>
+              Budget lunch — top 5 near campus  ›
+            </div>
+
+            <!-- Savings hero -->
+            <div class="mock-card">
+              <div class="mock-card-row">
+                <div>
+                  <div class="mock-amount">₹1,240</div>
+                  <div class="mock-label">saved this month</div>
+                </div>
+                <div>
+                  <div style="background:var(--mustard-light);border:1px solid var(--mustard);border-radius:8px;padding:4px 7px;text-align:center;">
+                    <div style="font-size:9px;font-weight:800;color:var(--navy);">₹80 more</div>
+                    <div style="font-size:7px;color:var(--body);">to VIP unlock</div>
+                  </div>
+                </div>
+              </div>
+              <div class="mock-progress" style="margin-top:6px;"><div class="mock-progress-fill" style="width:72%"></div></div>
+            </div>
+
+            <!-- Daily check-in -->
+            <div class="mock-strip">
+              <span style="font-size:10px;">🔥</span>
+              <span class="mock-strip-text">Day 6 streak — Claim 10 RC</span>
+            </div>
+
+            <!-- Streak to deal connector (NEW) -->
+            <div class="mock-card" style="border:1px solid var(--mustard);background:#FFFBEB;">
+              <div class="mock-card-title">🎁 Your streak reward today</div>
+              <div class="mock-card-row">
+                <div class="mock-card-sub">Chai Point near campus<br/>Extra 15 RC for 6-day streak</div>
+                <span class="mock-cta">Use now</span>
+              </div>
+            </div>
+
+            <div class="mock-bottom-nav">
+              <div class="mock-nav-item mock-nav-active">
+                <div class="mock-nav-icon">🏠</div>
+                <div class="mock-nav-label">Home</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">📍</div>
+                <div class="mock-nav-label">Near U</div>
+              </div>
+              <div class="mock-fab">🪙</div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">🏪</div>
+                <div class="mock-nav-label">Mall</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">💎</div>
+                <div class="mock-nav-label">Prive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Morning -->
+      <div>
+        <div style="text-align:center;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--navy);">💼 Employee · Morning 9AM</div>
+        <div class="phone">
+          <div class="phone-label">EMPLOYEE MORNING STATE</div>
+          <div class="phone-screen">
+            <div class="mock-header">
+              <div style="font-size:11px;font-weight:900;color:var(--navy);">rez</div>
+              <div style="background:#DBEAFE;color:#1D4ED8;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;">Employee</div>
+              <div class="mock-icons">
+                <div class="mock-icon"></div>
+                <div class="mock-icon"></div>
+              </div>
+            </div>
+
+            <div class="mock-card" style="border-left:3px solid var(--mustard);background:#F0FDF4;">
+              <div class="mock-card-title" style="color:#065F46;">☕ Grab & go near office</div>
+              <div style="font-size:10px;font-weight:800;color:var(--navy);margin-bottom:3px;">5 options within 300m</div>
+              <div class="mock-card-sub">Coffee · Breakfast · Quick recharge</div>
+              <div style="margin-top:5px;"><span class="mock-cta">See options →</span></div>
+            </div>
+
+            <div class="mock-pill">
+              <div class="mock-dot"></div>
+              Grab & go — coffee near office  ›
+            </div>
+
+            <div class="mock-card">
+              <div class="mock-card-row">
+                <div>
+                  <div class="mock-amount">₹3,490</div>
+                  <div class="mock-label">saved this month</div>
+                </div>
+                <div>
+                  <div style="font-size:8px;color:var(--red);background:#FEE2E2;padding:4px 6px;border-radius:6px;font-weight:700;">120 coins expiring<br/>in 12 hrs ⚡</div>
+                </div>
+              </div>
+              <div class="mock-progress" style="margin-top:6px;"><div class="mock-progress-fill" style="width:88%"></div></div>
+            </div>
+
+            <div class="mock-strip">
+              <span style="font-size:10px;">✅</span>
+              <span class="mock-strip-text">Check-in done! +10 RC earned</span>
+            </div>
+
+            <div class="mock-section-label" style="margin-top:8px;">New trial today</div>
+            <div class="mock-card">
+              <div class="mock-card-row">
+                <div>
+                  <div class="mock-card-title">Starbucks Reserve<br/>Tasting Trial</div>
+                  <div class="mock-card-sub">Free for first 20 visitors</div>
+                </div>
+                <span class="mock-cta">Claim →</span>
+              </div>
+            </div>
+
+            <div class="mock-bottom-nav">
+              <div class="mock-nav-item mock-nav-active">
+                <div class="mock-nav-icon">🏠</div>
+                <div class="mock-nav-label">Home</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">📍</div>
+                <div class="mock-nav-label">Near U</div>
+              </div>
+              <div class="mock-fab">🪙</div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">🏪</div>
+                <div class="mock-nav-label">Mall</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">💎</div>
+                <div class="mock-nav-label">Prive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evening Hangout -->
+      <div>
+        <div style="text-align:center;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--navy);">🎓 Student · Evening 5PM</div>
+        <div class="phone">
+          <div class="phone-label">EVENING SOCIAL STATE</div>
+          <div class="phone-screen">
+            <div class="mock-header">
+              <div style="font-size:11px;font-weight:900;color:var(--navy);">rez</div>
+              <div style="background:#EDE9FE;color:#7C3AED;font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;">Student</div>
+              <div class="mock-icons">
+                <div class="mock-icon"></div>
+                <div class="mock-icon"></div>
+              </div>
+            </div>
+
+            <div class="mock-card" style="border-left:3px solid #8B5CF6;background:#F5F3FF;">
+              <div class="mock-card-title" style="color:#4C1D95;">🎮 Hangout deals near campus</div>
+              <div style="font-size:10px;font-weight:800;color:var(--navy);margin-bottom:3px;">12 cafés & gaming spots</div>
+              <div class="mock-card-sub">Trending tonight · 3 friends checked in</div>
+              <div style="margin-top:5px;"><span class="mock-cta">Explore →</span></div>
+            </div>
+
+            <div class="mock-pill">
+              <div class="mock-dot"></div>
+              Hangout deals — gaming &amp; cafés  ›
+            </div>
+
+            <div class="mock-card">
+              <div style="font-size:9px;font-weight:700;color:var(--navy);margin-bottom:6px;">🔥 Trending near you</div>
+              <div class="mock-nearby">
+                <div class="mock-nearby-card">
+                  <div class="mock-nearby-img"></div>
+                  <div class="mock-nearby-name">The Grind</div>
+                  <div class="mock-nearby-save">Save ₹80</div>
+                </div>
+                <div class="mock-nearby-card">
+                  <div class="mock-nearby-img"></div>
+                  <div class="mock-nearby-name">Play Arena</div>
+                  <div class="mock-nearby-save">Free trial</div>
+                </div>
+                <div class="mock-nearby-card">
+                  <div class="mock-nearby-img"></div>
+                  <div class="mock-nearby-name">Chai Latte</div>
+                  <div class="mock-nearby-save">Save ₹45</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mock-strip">
+              <span style="font-size:10px;">🏆</span>
+              <span class="mock-strip-text">You're #3 saver on campus today</span>
+            </div>
+
+            <div class="mock-card">
+              <div class="mock-card-title">🧪 Today's trial drop</div>
+              <div class="mock-card-row" style="margin-top:4px;">
+                <div class="mock-card-sub">New gaming cafe<br/>15 min free session</div>
+                <span class="mock-cta">Try free →</span>
+              </div>
+            </div>
+
+            <div class="mock-bottom-nav">
+              <div class="mock-nav-item mock-nav-active">
+                <div class="mock-nav-icon">🏠</div>
+                <div class="mock-nav-label">Home</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">📍</div>
+                <div class="mock-nav-label">Near U</div>
+              </div>
+              <div class="mock-fab">🪙</div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">🏪</div>
+                <div class="mock-nav-label">Mall</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">💎</div>
+                <div class="mock-nav-label">Prive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- First time user -->
+      <div>
+        <div style="text-align:center;margin-bottom:8px;font-size:11px;font-weight:700;color:var(--navy);">🆕 First-Time User</div>
+        <div class="phone">
+          <div class="phone-label">ONBOARDING / DAY 1</div>
+          <div class="phone-screen">
+            <div class="mock-header">
+              <div style="font-size:11px;font-weight:900;color:var(--navy);">rez</div>
+              <div style="background:var(--mustard);color:var(--navy);font-size:8px;font-weight:700;padding:2px 6px;border-radius:4px;">New User</div>
+              <div class="mock-icons">
+                <div class="mock-icon"></div>
+                <div class="mock-icon"></div>
+              </div>
+            </div>
+
+            <div class="mock-card" style="border-left:3px solid var(--mustard);">
+              <div style="font-size:14px;font-weight:900;color:var(--navy);line-height:1.3;margin-bottom:6px;">Save money on<br/><span style="color:var(--mustard);">everything</span> you buy</div>
+              <div class="mock-card-sub" style="margin-bottom:8px;">Cashback, coins & free trials at 2,400+ stores</div>
+              <span class="mock-cta" style="font-size:9px;">🎁 Claim your ₹100 welcome reward</span>
+            </div>
+
+            <!-- Persona selector (NEW) -->
+            <div class="mock-card" style="background:var(--light);">
+              <div style="font-size:9px;font-weight:700;color:var(--navy);margin-bottom:6px;">Tell us about yourself for personalized deals</div>
+              <div style="display:flex;gap:5px;">
+                <div style="flex:1;background:white;border:1.5px solid var(--mustard);border-radius:8px;padding:5px;text-align:center;">
+                  <div style="font-size:14px;">🎓</div>
+                  <div style="font-size:8px;font-weight:700;color:var(--navy);">Student</div>
+                </div>
+                <div style="flex:1;background:white;border:1px solid var(--border);border-radius:8px;padding:5px;text-align:center;">
+                  <div style="font-size:14px;">💼</div>
+                  <div style="font-size:8px;font-weight:700;color:var(--muted);">Employee</div>
+                </div>
+                <div style="flex:1;background:white;border:1px solid var(--border);border-radius:8px;padding:5px;text-align:center;">
+                  <div style="font-size:14px;">🏠</div>
+                  <div style="font-size:8px;font-weight:700;color:var(--muted);">General</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mock-section-label">24 stores near you →</div>
+            <div class="mock-nearby" style="margin-bottom:6px;">
+              <div class="mock-nearby-card">
+                <div class="mock-nearby-img"></div>
+                <div class="mock-nearby-name">Cafe Coffee</div>
+                <div class="mock-nearby-save">Save ₹60</div>
+              </div>
+              <div class="mock-nearby-card">
+                <div class="mock-nearby-img"></div>
+                <div class="mock-nearby-name">Naturals</div>
+                <div class="mock-nearby-save">Save ₹90</div>
+              </div>
+              <div class="mock-nearby-card">
+                <div class="mock-nearby-img"></div>
+                <div class="mock-nearby-name">McD</div>
+                <div class="mock-nearby-save">₹20 RC back</div>
+              </div>
+            </div>
+
+            <div class="mock-bottom-nav">
+              <div class="mock-nav-item mock-nav-active">
+                <div class="mock-nav-icon">🏠</div>
+                <div class="mock-nav-label">Home</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">📍</div>
+                <div class="mock-nav-label">Near U</div>
+              </div>
+              <div class="mock-fab">🪙</div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">🏪</div>
+                <div class="mock-nav-label">Mall</div>
+              </div>
+              <div class="mock-nav-item">
+                <div class="mock-nav-icon">💎</div>
+                <div class="mock-nav-label">Prive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /phone-row -->
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 7: NEW COMPONENTS NEEDED ─────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span> New Components Required</div>
+    <div class="section-sub">Components that don't exist yet but are critical for the daily habit loop</div>
+
+    <div class="grid-2">
+
+      <div class="card" style="border-left:4px solid #7C3AED;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="tag tag-new">NEW</span>
+          <span class="tag tag-p0">P0 Critical</span>
+        </div>
+        <div class="card-title">MicroMomentDecisionCard</div>
+        <div class="card-body">
+          <strong>Purpose:</strong> The single most important component. Answers "where do I go right now?" at the top of the screen — before savings, before gamification.<br/><br/>
+          <strong>Shows:</strong> Live count of options within 500m for current time slot (e.g. "7 lunch spots near campus"), sorted by savings, with one-tap access.<br/><br/>
+          <strong>Data needed:</strong> <code>nearbyApi.getDecisionFeed(lat, lon, timeSlot, persona)</code><br/><br/>
+          <strong>Design:</strong> White card, mustard left border, bold count at top, single CTA. Changes copy + color by time slot (morning = green, lunch = amber, evening = purple, night = dark).
+        </div>
+      </div>
+
+      <div class="card" style="border-left:4px solid var(--mustard);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="tag tag-new">NEW</span>
+          <span class="tag tag-p0">P0 Critical</span>
+        </div>
+        <div class="card-title">StreakToDealConnector</div>
+        <div class="card-body">
+          <strong>Purpose:</strong> Connects the streak counter to a specific action today. Right now, the streak card is just a counter — this component tells the user what the streak unlocks TODAY, not just "progress".<br/><br/>
+          <strong>Shows:</strong> "You're on a [N]-day streak. Here's your streak bonus at [Merchant Name]" with a countdown.<br/><br/>
+          <strong>Only shows when:</strong> Streak ≥ 3 days AND user hasn't redeemed today's streak deal.<br/><br/>
+          <strong>Design:</strong> Mustard border, warm amber background, single deal card with CTA.
+        </div>
+      </div>
+
+      <div class="card" style="border-left:4px solid #EF4444;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="tag tag-new">NEW</span>
+          <span class="tag tag-p0">P0 Critical</span>
+        </div>
+        <div class="card-title">PersonaDetectionOnboarding</div>
+        <div class="card-body">
+          <strong>Purpose:</strong> Detects student vs employee on Day 1 to enable personalized copy throughout the app. Currently every user sees 'general' persona.<br/><br/>
+          <strong>Implementation:</strong> One-time 3-option card on first home screen visit: Student / Employee / General. Stores result in user profile (backend) + Zustand store (frontend).<br/><br/>
+          <strong>Used by:</strong> TimeAwareContextPill, MicroMomentDecisionCard, notification scheduler.<br/><br/>
+          <strong>Design:</strong> Light gray background card with 3 tappable tiles. Dismisses after selection. Never shows again.
+        </div>
+      </div>
+
+      <div class="card" style="border-left:4px solid var(--green);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="tag tag-new">NEW</span>
+          <span class="tag tag-p1">P1 High</span>
+        </div>
+        <div class="card-title">LiveNearbyCount (upgrade to TimeAwareContextPill)</div>
+        <div class="card-body">
+          <strong>Purpose:</strong> Replace hardcoded "14 offers within 1 km" copy with live data from the nearby offers API.<br/><br/>
+          <strong>Implementation:</strong> Add a <code>nearbyCount?: number</code> prop. Caller (index.tsx) fetches real count from <code>nearbyApi.getCount()</code> and passes it. Falls back gracefully to generic copy if API fails.<br/><br/>
+          <strong>Why critical:</strong> The urgency ("14 offers near you") only creates a habit trigger if it's real. Fake numbers kill trust within 2 weeks.
+        </div>
+      </div>
+
+      <div class="card" style="border-left:4px solid #6366F1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="tag tag-new">NEW</span>
+          <span class="tag tag-p1">P1 High</span>
+        </div>
+        <div class="card-title">CoinExpiryUrgencyBanner</div>
+        <div class="card-body">
+          <strong>Purpose:</strong> Creates loss aversion — the most powerful habit trigger. "You have 120 RC expiring in 12 hours" drives opens better than any reward promise.<br/><br/>
+          <strong>Shows only when:</strong> User has coins expiring in &lt;48 hours.<br/><br/>
+          <strong>Data:</strong> From existing wallet/coin API — just needs surface in a high-visibility component.<br/><br/>
+          <strong>Design:</strong> Red-tinted card, expiry countdown, direct "Use before expiry →" CTA.
+        </div>
+      </div>
+
+      <div class="card" style="border-left:4px solid #14B8A6;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span class="tag tag-new">NEW</span>
+          <span class="tag tag-p2">P2 Medium</span>
+        </div>
+        <div class="card-title">SocialProofNearby</div>
+        <div class="card-body">
+          <strong>Purpose:</strong> "3 people from your area checked in here today" — the social trigger that Magicpin attempted but failed to make contextual.<br/><br/>
+          <strong>Student version:</strong> Campus leaderboard teaser — "You're #3 saver on campus this week."<br/><br/>
+          <strong>Employee version:</strong> Office cluster activity — "5 colleagues used REZ Pay at lunch today."<br/><br/>
+          <strong>Data needed:</strong> Backend aggregation by location cluster (anonymized).
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 8: COMPONENT SPEC TABLE ──────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span> Component Specification — Full Audit</div>
+    <div class="section-sub">Every existing home screen component rated against the habit loop requirements</div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="spec-table">
+        <tr>
+          <th>Component</th>
+          <th>Habit Loop Job</th>
+          <th>Current Status</th>
+          <th>Required Change</th>
+          <th>Priority</th>
+        </tr>
+        <tr>
+          <td><span class="comp-name">TimeAwareContextPill</span></td>
+          <td>TRIGGER layer — time-aware micro-moment</td>
+          <td>Built correctly. Persona prop exists but always receives 'general'.</td>
+          <td>Wire <code>persona</code> from Zustand user profile store. Add live <code>nearbyCount</code> prop.</td>
+          <td><span class="tag tag-p0">P0</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">HeroCard</span></td>
+          <td>SAVINGS trigger — shows cumulative savings</td>
+          <td>White card design ✅. Shows total saved + unlock progress.</td>
+          <td>Add expiring coin urgency row inside the card when coins &lt;48hr from expiry.</td>
+          <td><span class="tag tag-p1">P1</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">DailyCheckInStrip</span></td>
+          <td>HABIT anchor — daily reward to trigger open</td>
+          <td>Fixed API ✅. White card ✅. Correct placement.</td>
+          <td>Add animation on claim. After claim, transition to show StreakToDealConnector.</td>
+          <td><span class="tag tag-p1">P1</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">VisitStreakCard</span></td>
+          <td>PROGRESS — streak counter</td>
+          <td>Shows days correctly. But isolated counter with no action.</td>
+          <td>Either merge into StreakToDealConnector OR add "Streak reward available" CTA below dots.</td>
+          <td><span class="tag tag-p1">P1</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">TryBeforeYouBuyCard</span></td>
+          <td>CURIOSITY loop — daily trial discovery</td>
+          <td>Generic category tiles. Not personalized. Not "daily drop" format.</td>
+          <td>Rename to "Today's trial drop." Show 1 featured merchant trial prominently. Rotate daily.</td>
+          <td><span class="tag tag-p1">P1</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">EarnRezCoinsSection</span></td>
+          <td>Multiple earning paths — reduces churn</td>
+          <td>White cards ✅. Good design. But too far below fold.</td>
+          <td>Move above fold OR add a 2-card horizontal scroll after StreakToDealConnector.</td>
+          <td><span class="tag tag-p2">P2</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">HomeSavingsSummaryCard</span></td>
+          <td>SAVINGS psychology — duplicate of HeroCard?</td>
+          <td>May create visual redundancy with HeroCard showing same data.</td>
+          <td>Consider merging with HeroCard or using only for the "missed saving" message (<em>"You missed saving ₹80 today"</em>).</td>
+          <td><span class="tag tag-p2">P2</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">NearbyOffersCarousel</span></td>
+          <td>LOCAL RELEVANCE — the most important content</td>
+          <td>Exists but buried below fold. Habit loop theory says nearby deals should be FIRST.</td>
+          <td>Surface top 3 nearby deals inside MicroMomentDecisionCard. Full carousel below.</td>
+          <td><span class="tag tag-p0">P0</span></td>
+        </tr>
+        <tr>
+          <td><span class="comp-name">StoriesRow</span></td>
+          <td>What's new — weak habit driver alone</td>
+          <td>Generic content feed. Low behavioral value for daily opens.</td>
+          <td>Replace with "Campus Buzz" (students) or "Office Deals" (employees) personalized content.</td>
+          <td><span class="tag tag-p2">P2</span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 9: NOTIFICATION STRATEGY ─────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span> Notification Strategy</div>
+    <div class="section-sub">Push notifications are the external trigger that brings users back. They must be smart, not spammy. 3 bad notifications = permanent mute = habit loop dead forever.</div>
+
+    <div class="alert alert-danger">
+      <div class="alert-icon">🚨</div>
+      <div class="alert-body">
+        <strong>Magicpin's fatal mistake:</strong> Generic alerts → users mute within 7 days → habit loop permanently broken. A muted notification is worse than no notification. Your notifications must pass the "would I be glad I got this?" test.
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px;">🎓 Student Notifications</div>
+        <div class="notif-card">
+          <div class="notif-icon">🍔</div>
+          <div>
+            <div class="notif-title">Lunch deals live near campus</div>
+            <div class="notif-body">7 budget combos within 500m — best one's ₹79 at Chai Point</div>
+            <div class="notif-meta">Mon–Fri at 12:00 PM · Only if user hasn't opened app today</div>
+          </div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon">🔥</div>
+          <div>
+            <div class="notif-title">Your 5-day streak is at risk</div>
+            <div class="notif-body">Check in before midnight to keep your streak & earn bonus coins</div>
+            <div class="notif-meta">9 PM · Only if check-in not done today · Max 1/day</div>
+          </div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon">🧪</div>
+          <div>
+            <div class="notif-title">New trial drop today</div>
+            <div class="notif-body">Haiku Cafe · Free tasting for 15 slots — 8 left</div>
+            <div class="notif-meta">Daily at 10 AM · Only Mon/Wed/Fri to avoid fatigue</div>
+          </div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon">⏰</div>
+          <div>
+            <div class="notif-title">120 REZ coins expiring tonight</div>
+            <div class="notif-body">Use them at any of 7 stores near you before 11:59 PM</div>
+            <div class="notif-meta">3 PM on day of expiry · Only if coins about to expire</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px;">💼 Employee Notifications</div>
+        <div class="notif-card">
+          <div class="notif-icon">☕</div>
+          <div>
+            <div class="notif-title">Morning: Grab & go deals near office</div>
+            <div class="notif-body">Coffee + breakfast at 5 spots within 3-min walk</div>
+            <div class="notif-meta">Mon–Fri at 8:30 AM · Only if within office location cluster</div>
+          </div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon">🍱</div>
+          <div>
+            <div class="notif-title">Lunch slots filling — book now</div>
+            <div class="notif-body">Express lunch at Social, Koramangala — 3 slots left for your time</div>
+            <div class="notif-meta">11:45 AM · Only if user opened app within last 3 days</div>
+          </div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon">💰</div>
+          <div>
+            <div class="notif-title">You saved ₹1,240 this month</div>
+            <div class="notif-body">₹80 more to unlock Pro Saver tier — one visit does it</div>
+            <div class="notif-meta">Every Friday at 6 PM · Monthly savings milestone</div>
+          </div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-icon">💇</div>
+          <div>
+            <div class="notif-title">After work: Grooming deals live</div>
+            <div class="notif-body">Same-day slots at 3 salons near office — from ₹199</div>
+            <div class="notif-meta">Fridays at 5:30 PM · Only if no visit in last 10 days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">📋 Notification Rules (must implement in backend trigger scheduler)</div>
+      <div class="card-body">
+        <table style="width:100%;font-size:12px;border-collapse:collapse;">
+          <tr style="background:var(--light);">
+            <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);">Rule</th>
+            <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);">Spec</th>
+          </tr>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--border);">Max per day</td><td style="padding:8px;border-bottom:1px solid var(--border);">2 push notifications maximum per user per day</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--border);">Dormancy suppression</td><td style="padding:8px;border-bottom:1px solid var(--border);">If user hasn't opened in 7+ days, send re-engagement only (not deals)</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--border);">Persona required</td><td style="padding:8px;border-bottom:1px solid var(--border);">Never send generic notification if persona is set</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--border);">Location gating</td><td style="padding:8px;border-bottom:1px solid var(--border);">Nearby deal alerts only fire if user's last known location is within 2km of mentioned area</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid var(--border);">Streak risk alert</td><td style="padding:8px;border-bottom:1px solid var(--border);">Only fire if streak ≥ 3 days (no point alerting for 0-day streaks)</td></tr>
+          <tr><td style="padding:8px;">Deep link</td><td style="padding:8px;">Every notification must deep link to relevant screen, not home screen root</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 10: PRIORITY BUILD ORDER ─────────────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">10</span> Priority Build Order</div>
+    <div class="section-sub">What to build first — ordered by impact on daily habit formation</div>
+
+    <div class="grid-3">
+      <div class="priority-col">
+        <div class="priority-col-header p0-header">🚨 P0 — Build This Week</div>
+        <div class="priority-item"><span class="p-num">1.</span> Wire <code>persona</code> prop in TimeAwareContextPill from user profile (student/employee/general)</div>
+        <div class="priority-item"><span class="p-num">2.</span> Build PersonaDetectionOnboarding — 3-tap first-time card. Store result in profile API + Zustand.</div>
+        <div class="priority-item"><span class="p-num">3.</span> Build MicroMomentDecisionCard — live nearby count by time slot, top 3 options, one CTA</div>
+        <div class="priority-item"><span class="p-num">4.</span> Surface nearby deals ABOVE the fold (currently buried below VisitStreakCard)</div>
+        <div class="priority-item"><span class="p-num">5.</span> Replace hardcoded "14 offers" copy in TimeAwareContextPill with live API count</div>
+      </div>
+
+      <div class="priority-col">
+        <div class="priority-col-header p1-header">⚡ P1 — Build Next Sprint</div>
+        <div class="priority-item"><span class="p-num">1.</span> Build StreakToDealConnector — shows specific streak reward deal when streak ≥ 3 days</div>
+        <div class="priority-item"><span class="p-num">2.</span> CoinExpiryUrgencyBanner — show when coins expire in &lt;48 hours (loss aversion trigger)</div>
+        <div class="priority-item"><span class="p-num">3.</span> DailyCheckInStrip post-claim animation + auto-show streak reward</div>
+        <div class="priority-item"><span class="p-num">4.</span> "Today's trial drop" format — replace TryBeforeYouBuyCard with daily rotating featured trial</div>
+        <div class="priority-item"><span class="p-num">5.</span> Backend: smart notification scheduler (time + persona + location gating)</div>
+      </div>
+
+      <div class="priority-col">
+        <div class="priority-col-header p2-header">🌱 P2 — Next Month</div>
+        <div class="priority-item"><span class="p-num">1.</span> SocialProofNearby — campus leaderboard teaser for students, office cluster activity for employees</div>
+        <div class="priority-item"><span class="p-num">2.</span> "Missed saving ₹80 today" insight message in HomeSavingsSummaryCard</div>
+        <div class="priority-item"><span class="p-num">3.</span> Group cashback unlock for students (friend group mechanic)</div>
+        <div class="priority-item"><span class="p-num">4.</span> Weekly savings report (every Friday night) as in-app card + push</div>
+        <div class="priority-item"><span class="p-num">5.</span> Campus rank / Pro Saver rank visible in streak section</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ─── SECTION 11: POSITIONING & ANTI-PATTERNS ──────────────── -->
+  <div class="section">
+    <div class="section-title"><span class="num">11</span> What Will Kill Daily Habit (Anti-Patterns to Avoid)</div>
+    <div class="section-sub">From your research on Magicpin / Dineout / Nearbuy failures — translated to concrete do-nots</div>
+
+    <div class="grid-2">
+      <div>
+        <div class="alert alert-danger">
+          <div class="alert-icon">❌</div>
+          <div class="alert-body"><strong>Same feed every day.</strong> If the home screen looks identical on Monday and Thursday, users stop checking. Every open must feel like something might be new or time-sensitive.</div>
+        </div>
+        <div class="alert alert-danger">
+          <div class="alert-icon">❌</div>
+          <div class="alert-body"><strong>Empty nearby supply.</strong> If the Decision Card shows "0 deals near you" even once, the user loses trust permanently. Only show this card when live data confirms supply.</div>
+        </div>
+        <div class="alert alert-danger">
+          <div class="alert-icon">❌</div>
+          <div class="alert-body"><strong>Notification spam.</strong> 3 generic notifications in a row = permanent mute. After that, no trigger can bring the user back. Enforce 2/day hard limit + persona filtering in backend.</div>
+        </div>
+        <div class="alert alert-danger">
+          <div class="alert-icon">❌</div>
+          <div class="alert-body"><strong>Delayed cashback / fake urgency.</strong> If user clicks "12 slots left" and finds 50 slots — or cashback takes 7 days — trust is broken. Urgency must be real. Cashback must feel instant.</div>
+        </div>
+      </div>
+      <div>
+        <div class="alert alert-success">
+          <div class="alert-icon">✅</div>
+          <div class="alert-body"><strong>Win one micro-moment first.</strong> For Bangalore launch: student lunch (12PM) and employee lunch (12PM) are the highest-frequency daily decisions. Win these completely before expanding.</div>
+        </div>
+        <div class="alert alert-success">
+          <div class="alert-icon">✅</div>
+          <div class="alert-body"><strong>Make savings feel cumulative and emotional.</strong> "You've saved ₹1,240 this month" hits different than "You saved ₹80 today." The monthly journey creates pride and investment in the app.</div>
+        </div>
+        <div class="alert alert-success">
+          <div class="alert-icon">✅</div>
+          <div class="alert-body"><strong>Streak → specific deal connector.</strong> The streak counter only drives daily opens when the user knows what the streak earns TODAY, not just a vague "progress" number.</div>
+        </div>
+        <div class="alert alert-success">
+          <div class="alert-icon">✅</div>
+          <div class="alert-body"><strong>Loss aversion &gt; gain promise.</strong> "120 coins expiring in 12 hours" drives more opens than "Earn 50 extra coins today." Build the expiry urgency banner as P1.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- FOOTER SUMMARY -->
+  <div class="card" style="border-left:4px solid var(--mustard);background:var(--mustard-light);">
+    <div class="card-title" style="font-size:17px;">🎯 One-Page Summary</div>
+    <div class="card-body" style="font-size:14px;line-height:1.9;margin-top:10px;">
+      REZ can become a daily app, but only if it owns the <strong>"where should I spend right now?"</strong> micro-moment. The current home page has the right bones (TimeAwareContextPill, DailyCheckInStrip, VisitStreakCard, savings hero) but three critical intelligence layers are off: <strong>(1)</strong> persona detection is hardcoded to 'general' — no student/employee personalization fires in production; <strong>(2)</strong> nearby counts and urgency signals are static copy — users learn to ignore them within days; <strong>(3)</strong> the streak counter has no "here's your reward today" connector, making it a number that feels meaningless. The P0 work is to turn on the intelligence that is already architecturally present. The P1 work is to add the StreakToDeal connector and the CoinExpiryUrgency trigger — these two components alone will move the daily retention needle more than any new feature.
+    </div>
+  </div>
+
+  <div style="margin-top:24px;text-align:center;font-size:12px;color:var(--muted);">
+    REZ Consumer App UI/UX Plan · Based on Daily Habit Loop Research · March 2026
+  </div>
+
+</div>
+</body>
+</html>

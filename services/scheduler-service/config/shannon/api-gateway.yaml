@@ -1,0 +1,36 @@
+description: "REZ API Gateway — routes traffic to all microservices. Main risks: route bypass to internal services, auth header stripping, SSRF via proxy routes, X-Internal-Token leakage, rate limit bypass."
+
+authentication:
+  login_type: form
+  login_url: "STAGING_URL/auth/merchant/login"
+  credentials:
+    username: "test-merchant@rez.money"
+    password: "SHANNON_TEST_PASSWORD"
+
+  login_flow:
+    - "Send POST request to $login_url with JSON body containing email=$username and password=$password"
+    - "Store the returned JWT token and use as Bearer token"
+
+  success_condition:
+    type: url_contains
+    value: "/"
+
+rules:
+  avoid:
+    - description: "Do not trigger real payment processing"
+      type: path
+      url_path: "/payment/webhook"
+
+  focus:
+    - description: "Focus on route bypass and direct microservice access"
+      type: path
+      url_path: "/internal"
+    - description: "Focus on auth header manipulation and token forwarding"
+      type: path
+      url_path: "/auth"
+    - description: "Test SSRF via proxy routes"
+      type: path
+      url_path: "/proxy"
+
+pipeline:
+  max_concurrent_pipelines: 2

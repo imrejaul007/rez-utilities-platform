@@ -1,0 +1,42 @@
+description: "REZ Payment Service — Razorpay integration, payment initiation, webhook processing, payment status. Key risks: webhook signature bypass (allow unsigned webhooks), IDOR on payment records, payment amount manipulation, replay attacks on webhook events, race conditions on payment status updates."
+
+authentication:
+  login_type: form
+  login_url: "STAGING_URL/auth/login"
+  credentials:
+    username: "test-merchant@rez.money"
+    password: "SHANNON_TEST_PASSWORD"
+
+  login_flow:
+    - "Send POST request to $login_url with JSON body containing email=$username and password=$password"
+    - "Store the returned JWT token as Bearer"
+
+  success_condition:
+    type: url_contains
+    value: "/"
+
+rules:
+  avoid:
+    - description: "Do not trigger real Razorpay charges"
+      type: path
+      url_path: "/initiate"
+    - description: "Do not send real webhook events to external services"
+      type: path
+      url_path: "/notify"
+
+  focus:
+    - description: "Test webhook HMAC signature verification bypass"
+      type: path
+      url_path: "/webhook"
+    - description: "Test IDOR on payment records — access other users payments"
+      type: path
+      url_path: "/payments"
+    - description: "Test payment amount and currency manipulation"
+      type: path
+      url_path: "/create"
+    - description: "Test race conditions on payment status"
+      type: path
+      url_path: "/status"
+
+pipeline:
+  max_concurrent_pipelines: 2

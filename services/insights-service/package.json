@@ -1,0 +1,35 @@
+{
+  "name": "rez-insights-service",
+  "version": "1.0.0",
+  "description": "Service for storing and managing AI-powered insights for ReZ platform",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm install --include=dev && tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "@rez/shared": "file:../rez-shared",
+    "@sentry/node": "^7.100.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "ioredis": "^5.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.17.2",
+    "winston": "^3.19.0",
+    "zod": "^3.23.6"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^22.10.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

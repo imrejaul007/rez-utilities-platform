@@ -1,0 +1,341 @@
+{
+  "audit_date": "2026-04-15",
+  "audit_scope": "All HIGH severity bugs in backend money-critical services",
+  "phase": "Phase 2 (HIGH severity) Analysis",
+  "total_bugs_identified": {
+    "HIGH": 30,
+    "CRITICAL": 5,
+    "MEDIUM": 110,
+    "LOW": 30
+  },
+  "summary_by_service": {
+    "rez-payment-service": {
+      "HIGH": 5,
+      "CRITICAL": 0,
+      "bugs": {
+        "BE-PAY-001": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Floating-point precision in refund full/partial detection",
+          "file": "src/services/paymentService.ts",
+          "fix_hint": "Validate refundedAmount with Math.round(v * 100) / 100",
+          "impact": "Reconciliation errors, merchants see incorrect refund status"
+        },
+        "BE-PAY-002": {
+          "severity": "CRITICAL",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Replay attack on webhook events when Redis unavailable",
+          "file": "src/routes/paymentRoutes.ts",
+          "fix_hint": "Reject webhooks with 503 if Redis unavailable",
+          "impact": "CRITICAL: Duplicate wallet credits, payment fraud"
+        },
+        "BE-PAY-009": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Webhook handler doesn't verify payment with Razorpay",
+          "file": "src/services/paymentService.ts",
+          "fix_hint": "Call Razorpay API to verify payment status before wallet credit",
+          "impact": "Fake webhooks could credit wallet without actual payment"
+        },
+        "BE-PAY-017": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "getMerchantSettlements IDOR - no ownership validation",
+          "file": "src/routes/paymentRoutes.ts",
+          "fix_hint": "Verify req.merchantId matches authenticated merchant",
+          "impact": "Information disclosure: merchants view other merchants' settlements"
+        },
+        "BE-PAY-025": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Concurrent webhook and capture API could credit wallet twice",
+          "file": "src/services/paymentService.ts",
+          "fix_hint": "Set walletCredited=true inside transaction before job enqueue",
+          "impact": "Wallet balance corruption: coins credited twice for single payment"
+        }
+      }
+    },
+    "rez-merchant-service": {
+      "HIGH": 7,
+      "CRITICAL": 2,
+      "bugs": {
+        "BE-MER-002": {
+          "severity": "CRITICAL",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Missing Merchant ID Validation in Profile Update",
+          "file": "src/routes/merchants.ts (PUT /profile)",
+          "fix_hint": "Whitelist editable fields, exclude isVerified, subscription, accountLockedUntil",
+          "impact": "CRITICAL: Merchants self-verify, bypass KYC, escalate privileges",
+          "compliance": "KYC bypass - regulatory violation"
+        },
+        "BE-MER-003": {
+          "severity": "CRITICAL",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Bank Details Stored Unencrypted",
+          "file": "src/routes/merchants.ts (PUT /profile)",
+          "fix_hint": "Remove bankDetails from MERCHANT_PROFILE_EDITABLE_FIELDS or ensure proper encryption",
+          "impact": "CRITICAL: PII leak - bank details in plaintext, GDPR/RBI violation",
+          "compliance": "GDPR, RBI - fines up to 4% revenue"
+        },
+        "BE-MER-004": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Onboarding Status Can Be Bypassed",
+          "file": "src/routes/onboarding.ts (PUT /onboarding/profile)",
+          "fix_hint": "Separate route for step-data updates vs progress tracking (admin-only)",
+          "impact": "Merchants bypass KYC steps, fraudulent accounts activate"
+        },
+        "BE-MER-010": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Onboarding Bank Details Update Missing Field Validation",
+          "file": "src/routes/onboarding.ts (PUT /onboarding/profile)",
+          "fix_hint": "Validate IFSC (11 alphanumeric), account number (8-18 digits), account holder name",
+          "impact": "Invalid bank account data, failed payouts, compliance issues"
+        },
+        "BE-MER-012": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Missing Authentication Context in Team Routes",
+          "file": "src/routes/team.ts (POST /team/invitations/accept)",
+          "fix_hint": "Require password hash or email confirmation to prove identity",
+          "impact": "Account hijacking: attacker accepts invitation for another user"
+        },
+        "BE-MER-013": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "claimed_status": "Fixed in commit TBD",
+          "issue": "Team Member Password Hash Not Validated on Invite Accept",
+          "file": "src/routes/team.ts",
+          "fix_hint": "Enforce password: 12+ chars, uppercase, lowercase, number, special char",
+          "impact": "Weak passwords on team accounts, security risk"
+        },
+        "BE-MER-036": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "No Rate Limiting on Bulk Import",
+          "file": "src/routes/bulkImport.ts",
+          "fix_hint": "Add rate limit: 1 request per 10 seconds per merchant",
+          "impact": "Resource exhaustion, DoS via legitimate API, service degradation"
+        }
+      }
+    },
+    "rez-auth-service": {
+      "HIGH": 7,
+      "CRITICAL": 0,
+      "bugs": {
+        "BE-AUTH-005": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Concurrent OTP Verification Creates Duplicates",
+          "file": "src/services/otpService.ts",
+          "fix_hint": "Increment failure counter only after comparison fails in Lua script",
+          "impact": "User locked out prematurely from double-click OTP verification"
+        },
+        "BE-AUTH-007": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Upsert Creates Multiple Users on Concurrent OTP Verify",
+          "file": "src/routes/authRoutes.ts (POST /auth/otp/verify)",
+          "fix_hint": "Ensure unique index on phoneNumber, use matchedCount for new user detection",
+          "impact": "Race condition: one user's auth session creation silently ignored"
+        },
+        "BE-AUTH-015": {
+          "severity": "HIGH",
+          "status": "NOT_IMPLEMENTED",
+          "issue": "Password Reset Flow Not Implemented",
+          "file": "src/routes/authRoutes.ts",
+          "fix_hint": "Implement: request (email/SMS) -> verify (token) -> reset (new PIN)",
+          "impact": "Users with forgotten passwords have no recovery mechanism"
+        },
+        "BE-AUTH-016": {
+          "severity": "HIGH",
+          "status": "NOT_IMPLEMENTED",
+          "issue": "2FA Not Implemented",
+          "file": "src/routes/authRoutes.ts",
+          "fix_hint": "Add TOTP support and SMS second factor",
+          "impact": "Users cannot enable 2FA, single-factor auth only"
+        },
+        "BE-AUTH-023": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Merchant Token Validation Missing Role Check",
+          "file": "src/services/tokenService.ts",
+          "fix_hint": "Validate role claim present before secret selection",
+          "impact": "Malformed tokens bypass role-based secret validation"
+        },
+        "BE-AUTH-033": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "OTP Sent in Logs for Development",
+          "file": "src/services/otpService.ts",
+          "fix_hint": "Remove logging of OTP; use secure development flow",
+          "impact": "OTP exposure in logs if NODE_ENV misconfigured"
+        },
+        "BE-AUTH-034": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Internal User Lookup Not Authorized",
+          "file": "src/routes/authRoutes.ts (GET /internal/auth/user/:id)",
+          "fix_hint": "Add scoped token validation: tokens specify authorized user IDs",
+          "impact": "Internal service compromise leaks all user data"
+        }
+      }
+    },
+    "rez-finance-service": {
+      "HIGH": 2,
+      "CRITICAL": 0,
+      "bugs": {
+        "BE-FIN-001": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "BNPL limit reservation reversal is non-atomic",
+          "file": "src/services/bnplService.ts",
+          "fix_hint": "Wrap reversal in retry loop with exponential backoff",
+          "impact": "Failed reversal blocks user permanently from BNPL"
+        },
+        "BE-FIN-014": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "No concurrency control for loan disbursement",
+          "file": "src/services/loanService.ts (not shown in detail)",
+          "fix_hint": "Add status check: only allow disbursement if status='approved', atomically transition to 'disbursed'",
+          "impact": "Concurrent disbursement requests could double-disburse loans"
+        }
+      }
+    },
+    "rez-api-gateway": {
+      "HIGH": 6,
+      "CRITICAL": 0,
+      "bugs": {
+        "BE-GW-009": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Cookie Fallback Security Regression",
+          "file": "rez-api-gateway/src/shared/authMiddleware.ts",
+          "fix_hint": "Ensure express.cookieParser() loaded before authMiddleware",
+          "impact": "Auth bypass if middleware chain misconfigured"
+        },
+        "BE-GW-011": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Nginx Rate Limiting burst=5 allows bypass",
+          "file": "rez-api-gateway/nginx.conf:512",
+          "fix_hint": "Change burst=5 to burst=1",
+          "impact": "5 concurrent invalid auth attempts bypass rate limit"
+        },
+        "BE-GW-014": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Auth Cache Bypass Not Enforced",
+          "file": "rez-api-gateway/nginx.conf:189-192",
+          "fix_hint": "Change default 1 to explicitly check Bearer token",
+          "impact": "Authenticated user data cached and served to next request"
+        },
+        "BE-GW-020": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "CORS Allow-Credentials Without Same-Site",
+          "file": "rez-api-gateway/nginx.conf:296-297",
+          "fix_hint": "Add SameSite=Strict to Set-Cookie headers",
+          "impact": "Credential leak via cross-origin requests"
+        },
+        "BE-GW-026": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Cache Key Includes Plain Authorization Header",
+          "file": "rez-api-gateway/nginx.conf:376, 393, 732",
+          "fix_hint": "Hash token before cache_key",
+          "impact": "One user's cached response serves another user with slightly different token"
+        },
+        "BE-GW-028": {
+          "severity": "HIGH",
+          "status": "NOT_FIXED",
+          "issue": "Merchant Authorization Format Not Validated",
+          "file": "rez-api-gateway/nginx.conf:139-142",
+          "fix_hint": "Map only valid Bearer tokens: ~^Bearer\\s+[\\w\\-]+$",
+          "impact": "Rate limiting bypassed with arbitrary Authorization header values"
+        }
+      }
+    },
+    "rez-order-service": {
+      "HIGH": 1,
+      "CRITICAL": 0,
+      "bugs": {
+        "BE-ORD-024": {
+          "severity": "HIGH",
+          "status": "DEFERRED",
+          "issue": "Missing Cancellation TTL on Cancelling Status",
+          "file": "src/httpServer.ts",
+          "fix_hint": "Implement scheduled job to auto-expire orders stuck in 'cancelling' for >1 hour",
+          "impact": "Orders hang in cancelling state indefinitely, inventory never released",
+          "reason_deferred": "Requires scheduler infrastructure (separate task)"
+        }
+      },
+      "note": "11 of 12 HIGH bugs fixed in Phase 1"
+    },
+    "rez-wallet-service": {
+      "HIGH": 0,
+      "CRITICAL": 0,
+      "MEDIUM": 20,
+      "note": "No HIGH severity bugs. 20+ MEDIUM severity concurrency issues identified."
+    }
+  },
+  "critical_vulnerabilities": {
+    "merchant_verification": {
+      "bugs": ["BE-MER-002", "BE-MER-003", "BE-MER-004"],
+      "severity": "CRITICAL",
+      "compliance_impact": "KYC bypass, PII exposure",
+      "recommended_action": "Deploy within 24 hours"
+    },
+    "wallet_integrity": {
+      "bugs": ["BE-PAY-002", "BE-PAY-009", "BE-PAY-025"],
+      "severity": "CRITICAL",
+      "financial_impact": "Unlimited duplicate payments, wallet corruption",
+      "recommended_action": "Deploy within 24 hours"
+    },
+    "user_authentication": {
+      "bugs": ["BE-AUTH-005", "BE-AUTH-007"],
+      "severity": "HIGH",
+      "security_impact": "User creation races, concurrent auth failures",
+      "recommended_action": "Deploy within 48 hours"
+    },
+    "api_security": {
+      "bugs": ["BE-GW-009", "BE-GW-011", "BE-GW-014", "BE-GW-020", "BE-GW-026", "BE-GW-028"],
+      "severity": "HIGH",
+      "security_impact": "Rate limit bypass, cache poisoning, credential leak",
+      "recommended_action": "Deploy within 48 hours"
+    }
+  },
+  "phase1_completion_status": {
+    "rez-order-service": {
+      "total_high_bugs": 13,
+      "fixed": 12,
+      "percentage": "92%",
+      "unfixed": ["BE-ORD-024 (deferred)"]
+    },
+    "summary": "Phase 1 (CRITICAL bugs) substantially completed with 12 of 13 order service HIGH bugs fixed. Phase 2 (HIGH severity) requires immediate attention for payment, merchant, and auth services."
+  },
+  "implementation_requirements": {
+    "deployment_strategy": "Batch by service: payment -> merchant -> auth -> gateway",
+    "testing_checklist": [
+      "Replay attack: Webhook duplicate + Redis down -> 503 rejection",
+      "Wallet double-credit: Concurrent capture + webhook -> single credit",
+      "Merchant self-verify: PUT { isVerified: true } -> 403 Forbidden",
+      "OTP race: 2 concurrent verify -> single lockout",
+      "User race: 2 concurrent OTP verify same phone -> single user",
+      "Bank encryption: GET /profile -> bankDetails not visible"
+    ],
+    "load_testing": "Minimum 100 concurrent requests on auth/payment paths",
+    "estimated_timeline": "4-5 days for full Phase 2 remediation"
+  }
+}

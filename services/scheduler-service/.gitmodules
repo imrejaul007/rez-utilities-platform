@@ -1,0 +1,81 @@
+[submodule "Hotel OTA"]
+	path = Hotel OTA
+	url = git@github.com:imrejaul007/hotel-ota.git
+[submodule "Rendez"]
+	path = Rendez
+	url = git@github.com:imrejaul007/Rendez.git
+[submodule "Resturistan App"]
+	path = Resturistan App
+	url = git@github.com:imrejaul007/restaurantapp.git
+[submodule "adBazaar"]
+	path = adBazaar
+	url = git@github.com:imrejaul007/adBazaar.git
+[submodule "analytics-events"]
+	path = analytics-events
+	url = git@github.com:imrejaul007/analytics-events.git
+[submodule "packages/rez-shared"]
+	path = packages/rez-shared
+	url = git@github.com:imrejaul007/rez-shared.git
+[submodule "rez-ads-service"]
+	path = rez-ads-service
+	url = git@github.com:imrejaul007/rez-ads-service.git
+[submodule "rez-api-gateway"]
+	path = rez-api-gateway
+	url = git@github.com:imrejaul007/rez-api-gateway.git
+[submodule "rez-auth-service"]
+	path = rez-auth-service
+	url = git@github.com:imrejaul007/rez-auth-service.git
+[submodule "rez-catalog-service"]
+	path = rez-catalog-service
+	url = git@github.com:imrejaul007/rez-catalog-service.git
+[submodule "rez-finance-service"]
+	path = rez-finance-service
+	url = git@github.com:imrejaul007/rez-finance-service.git
+[submodule "rez-gamification-service"]
+	path = rez-gamification-service
+	url = git@github.com:imrejaul007/rez-gamification-service.git
+[submodule "rez-marketing-service"]
+	path = rez-marketing-service
+	url = git@github.com:imrejaul007/rez-marketing-service.git
+[submodule "rez-media-events"]
+	path = rez-media-events
+	url = git@github.com:imrejaul007/rez-media-events.git
+[submodule "rez-merchant-service"]
+	path = rez-merchant-service
+	url = git@github.com:imrejaul007/rez-merchant-service.git
+[submodule "rez-notification-events"]
+	path = rez-notification-events
+	url = git@github.com:imrejaul007/rez-notification-events.git
+[submodule "rez-now"]
+	path = rez-now
+	url = git@github.com:imrejaul007/rez-now.git
+[submodule "rez-order-service"]
+	path = rez-order-service
+	url = git@github.com:imrejaul007/rez-order-service.git
+[submodule "rez-payment-service"]
+	path = rez-payment-service
+	url = git@github.com:imrejaul007/rez-payment-service.git
+[submodule "rez-search-service"]
+	path = rez-search-service
+	url = git@github.com:imrejaul007/rez-search-service.git
+[submodule "rez-app-consumer"]
+	path = rez-app-consumer
+	url = git@github.com:imrejaul007/rez-app-consumer.git
+[submodule "rez-shared"]
+	path = rez-shared
+	url = git@github.com:imrejaul007/rez-shared.git
+[submodule "rez-wallet-service"]
+	path = rez-wallet-service
+	url = git@github.com:imrejaul007/rez-wallet-service.git
+[submodule "rez-web-menu"]
+	path = rez-web-menu
+	url = git@github.com:imrejaul007/rez-web-menu.git
+[submodule "rezadmin/rez-admin-main"]
+	path = rezadmin/rez-admin-main
+	url = git@github.com:imrejaul007/rez-app-admin.git
+[submodule "rezbackend/rez-backend-master"]
+	path = rezbackend/rez-backend-master
+	url = git@github.com:imrejaul007/rez-backend.git
+[submodule "rezmerchant/rez-merchant-master"]
+	path = rezmerchant/rez-merchant-master
+	url = git@github.com:imrejaul007/rez-app-marchant.git

@@ -1,0 +1,26 @@
+{
+  "name": "@rez/shared-enums",
+  "version": "1.0.0",
+  "description": "Canonical enum definitions for all REZ services. Single source of truth for status codes, types, and categorical values to prevent case-mismatch bugs across the platform.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,383 @@
+version: '3.8'
+
+# REZ Microservices — Phase C Docker Compose
+# All services consume from the same Redis/BullMQ queues as the monolith.
+# Run alongside the monolith's docker-compose.yml during shadow mode.
+#
+# Network isolation:
+#   gateway  — rez-api-gateway + all microservices (inter-service traffic)
+#   internal — microservices only; internal: true blocks all external access
+# MongoDB and Redis are external (Render/Atlas) — no container defined here.
+#
+# CS-C1 FIX: When deploying these microservices, you MUST set the following
+# environment variables on the monolith's worker dyno/container to disable
+# its internal workers and prevent double-consumption of BullMQ queues.
+# Without these flags both the monolith worker and each microservice consumer
+# will race for jobs on the same queue, causing ~50% event loss.
+#
+# Add these to the monolith's environment (e.g., Render env vars / .env):
+#   GAMIFICATION_WORKER_EXTERNAL=true   (when rez-gamification-service is deployed)
+#   ORDER_WORKER_EXTERNAL=true          (when rez-order-service is deployed)
+#   WALLET_WORKER_EXTERNAL=true         (when rez-wallet-service is deployed)
+#   NOTIFICATION_WORKER_EXTERNAL=true   (when rez-notification-events is deployed)
+#   PAYMENT_EVENTS_WORKER_EXTERNAL=true (when rez-payment-service handles events)
+
+networks:
+  gateway:
+    driver: bridge
+  internal:
+    driver: bridge
+    internal: true
+
+services:
+  rez-notification-events:
+    build: ./rez-notification-events
+    container_name: rez-notification-events
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3001
+      - SERVICE_NAME=rez-notification-events
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL}
+      - MSG91_API_KEY=${MSG91_API_KEY}
+      - WHATSAPP_API_TOKEN=${WHATSAPP_API_TOKEN}
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  analytics-events:
+    build: ./analytics-events
+    container_name: analytics-events
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3002
+      - SERVICE_NAME=analytics-events
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-gamification-service:
+    build: ./rez-gamification-service
+    container_name: rez-gamification-service
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3003
+      - SERVICE_NAME=rez-gamification-service
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-merchant-service:
+    build: ./rez-merchant-service
+    container_name: rez-merchant-service
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3004
+      - SERVICE_NAME=rez-merchant-service
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-catalog-service:
+    build: ./rez-catalog-service
+    container_name: rez-catalog-service
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3005
+      - SERVICE_NAME=rez-catalog-service
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-order-service:
+    build: ./rez-order-service
+    container_name: rez-order-service
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3006
+      - SERVICE_NAME=rez-order-service
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3006/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-wallet-service:
+    build: ./rez-wallet-service
+    container_name: rez-wallet-service
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3007
+      - SERVICE_NAME=rez-wallet-service
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3007/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-media-events:
+    build: ./rez-media-events
+    container_name: rez-media-events
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3008
+      - SERVICE_NAME=rez-media-events
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3008/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # CS-C1 / CS-H4 FIX: Monolith worker dyno — cutover flags disable internal BullMQ
+  # workers for every queue that now has a standalone microservice consumer.
+  # Without these flags, both the monolith worker and each microservice race for
+  # jobs on the same BullMQ queue, causing ~50% event loss (silent data corruption).
+  #
+  # Each flag set to 'true' tells the monolith's startCriticalWorkers() to skip
+  # starting that queue's internal worker, deferring entirely to the microservice.
+
+  rez-karma-service:
+    build: ./rez-karma-service
+    container_name: rez-karma-service
+    restart: unless-stopped
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - PORT=3009
+      - SERVICE_NAME=rez-karma-service
+      # Service-to-service URLs — fall back to Docker network hostnames
+      - AUTH_SERVICE_URL=${KARMA_AUTH_SERVICE_URL:-http://rez-auth-service:3001}
+      - WALLET_SERVICE_URL=${KARMA_WALLET_SERVICE_URL:-http://rez-wallet-service:4004}
+      - MERCHANT_SERVICE_URL=${KARMA_MERCHANT_SERVICE_URL:-http://rez-merchant-service:3004}
+      - BATCH_CRON_SCHEDULE=${KARMA_BATCH_CRON_SCHEDULE:-59 23 * * 0}
+      - JWT_SECRET=${KARMA_JWT_SECRET:-}
+      - INTERNAL_SERVICE_TOKEN=${KARMA_INTERNAL_SERVICE_TOKEN:-}
+      - CORS_ORIGIN=${KARMA_CORS_ORIGIN:-https://rez.money}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3009/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  rez-backend-worker:
+    build: ./rezbackend/rez-backend-master
+    container_name: rez-backend-worker
+    restart: unless-stopped
+    command: ["node", "dist/worker.js"]
+    networks:
+      - gateway
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
+      - SERVICE_NAME=rez-backend-worker
+      # CS-C1 / CS-H4: Disable monolith-internal queue workers — each queue is
+      # now owned by its dedicated microservice. Setting these prevents the
+      # double-consume race that silently drops ~50% of events.
+      - GAMIFICATION_WORKER_EXTERNAL=true
+      - ORDER_WORKER_EXTERNAL=true
+      - WALLET_WORKER_EXTERNAL=true
+      - NOTIFICATION_WORKER_EXTERNAL=true
+      - PAYMENT_EVENTS_WORKER_EXTERNAL=true
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3

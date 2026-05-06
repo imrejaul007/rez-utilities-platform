@@ -1,0 +1,27 @@
+# render.yaml - rez-insights-service
+# AI Insights Service for ReZ Ecosystem
+
+services:
+  - type: web
+    name: rez-insights-service
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: INTERNAL_SERVICE_TOKEN
+        sync: false
+      - key: INTENT_API_URL
+        value: https://rez-intent-graph.onrender.com
