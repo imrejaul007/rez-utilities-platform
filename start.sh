@@ -1,22 +1,28 @@
 #!/bin/bash
-# Start all Utility services concurrently
+# Start all Utility services concurrently using tsx
 
 echo "Starting REZ Utilities Platform..."
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Install tsx globally for fast TypeScript execution
+npm install -g tsx
+
 # Automation Service (4014)
-cd "$(dirname "$0")/services/automation-service" && ./start.sh &
+cd "$SCRIPT_DIR/services/automation-service" && npx tsx src/index.ts &
 sleep 2
 
-# Scheduler Service (4016 - fixed port)
-cd "$(dirname "$0")/services/scheduler-service" && ./start.sh &
+# Scheduler Service (4016)
+cd "$SCRIPT_DIR/services/scheduler-service" && npx tsx src/index.ts &
 sleep 2
 
 # Insights Service
-cd "$(dirname "$0")/services/insights-service" && ./start.sh &
+cd "$SCRIPT_DIR/services/insights-service" && npx tsx src/index.ts &
 sleep 2
 
 # Worker
-cd "$(dirname "$0")/services/worker" && ./start.sh &
+cd "$SCRIPT_DIR/services/worker" && npx tsx src/index.ts &
 
 echo "All Utilities services started"
 wait
