@@ -4,7 +4,7 @@ services:
     name: rez-utilities-platform
     env: node
     region: singapore
-    buildCommand: npm install
+    buildCommand: npm install && npm run build --workspaces
     startCommand: bash start.sh
     healthCheckPath: health
     autoDeploy: yes
