@@ -1,3 +1,4 @@
+# rez-utilities-platform - Deploys all utilities together
 services:
   - type: web
     name: rez-utilities-platform
@@ -5,11 +6,11 @@ services:
     region: singapore
     buildCommand: npm install
     startCommand: bash start.sh
-    healthCheckPath: /health
+    healthCheckPath: health
+    autoDeploy: yes
+    branch: main
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: REDIS_URL
+      - key: PORT
         sync: false
