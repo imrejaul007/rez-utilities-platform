@@ -6,7 +6,7 @@ services:
     region: singapore
     buildCommand: npm install && npm run build --workspaces
     startCommand: bash start.sh
-    healthCheckPath: health
+    healthCheckPath: /health
     autoDeploy: yes
     branch: main
     envVars:

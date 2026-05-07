@@ -1,28 +1,28 @@
 #!/bin/bash
-# Start all Utility services concurrently using tsx
+# Start all Utility services - builds first then runs compiled JS
 
 echo "Starting REZ Utilities Platform..."
 
-# Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Install tsx globally for fast TypeScript execution
-npm install -g tsx
+# Install dependencies and build each service
+cd "$SCRIPT_DIR/services/automation-service" && npm install && npm run build &
+sleep 1
+cd "$SCRIPT_DIR/services/scheduler-service" && npm install && npm run build &
+sleep 1
+cd "$SCRIPT_DIR/services/insights-service" && npm install && npm run build &
+sleep 1
+cd "$SCRIPT_DIR/services/worker" && npm install && npm run build &
+wait
 
-# Automation Service (4014)
-cd "$SCRIPT_DIR/services/automation-service" && npx tsx src/index.ts &
-sleep 2
-
-# Scheduler Service (4016)
-cd "$SCRIPT_DIR/services/scheduler-service" && npx tsx src/index.ts &
-sleep 2
-
-# Insights Service
-cd "$SCRIPT_DIR/services/insights-service" && npx tsx src/index.ts &
-sleep 2
-
-# Worker
-cd "$SCRIPT_DIR/services/worker" && npx tsx src/index.ts &
+# Start compiled services
+cd "$SCRIPT_DIR/services/automation-service" && PORT=4014 node dist/index.js &
+sleep 1
+cd "$SCRIPT_DIR/services/scheduler-service" && PORT=4016 node dist/index.js &
+sleep 1
+cd "$SCRIPT_DIR/services/insights-service" && PORT=4015 node dist/index.js &
+sleep 1
+cd "$SCRIPT_DIR/services/worker" && node dist/index.js &
 
 echo "All Utilities services started"
 wait

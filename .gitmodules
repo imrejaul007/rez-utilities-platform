@@ -1,0 +1,3 @@
+[submodule "services/rez-shared"]
+	path = services/rez-shared
+	url = https://github.com/imrejaul007/rez-shared
